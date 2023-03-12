@@ -43,6 +43,9 @@ class Game:
             for col_index, val in enumerate(row):
                 if val:
                     self.screen.blit(val, (col_index*TILE_SIZE, row_index*TILE_SIZE))
+    
+    def mouse_move(self, event):
+        if event.type == pygame.mo
 
     def run(self):
         self.screen.blit(self.board, (0,0))
