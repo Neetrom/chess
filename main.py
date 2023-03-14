@@ -1,6 +1,7 @@
 import pygame, sys
 from settings import *
-from pieces import Piece, Rook
+from pieces import Piece, Rook, Queen, Pawn, Bishop, King, Horse
+from copy import deepcopy
 
 class Game:
     def __init__(self):
@@ -9,7 +10,7 @@ class Game:
         pygame.display.set_caption("lmao")
         self.board = pygame.surface.Surface(BOARD_SIZE)
         self.generate_board()
-        self.logic_board = [[0, 0, 0, 0, 0, 0, 0, 0],
+        self.graphics_piece_board = [[0, 0, 0, 0, 0, 0, 0, 0],
                             [0, 0, 0, 0, 0, 0, 0, 0],
                             [0, 0, 0, 0, 0, 0, 0, 0],
                             [0, 0, 0, 0, 0, 0, 0, 0],
@@ -19,20 +20,21 @@ class Game:
                             [0, 0, 0, 0, 0, 0, 0, 0]]
                 
 
-        self.pieces = [["BR", "BH", "BB", "BQ", "BK", "BB", "BH", "BR"],
-                       ["BP", "BP", "BP", "BP", "BP", "BP", "BP", "BP"],
-                       [0, 0, 0, 0, 0, 0, 0, 0],
-                       [0, 0, 0, 0, 0, 0, 0, 0],
-                       [0, 0, 0, 0, 0, 0, 0, 0],
-                       [0, 0, 0, 0, 0, 0, 0, 0],
-                       [0, "WP", "WP", "WP", "WP", "WP", "WP", "WP"],
-                       ["WR", "WH", "WB", "WQ", "WK", "WB", "WH", "WR"]]
+        self.pieces = PIECES
         
         self.piece_group = pygame.sprite.Group()
+        self.kings = []
         self.import_pieces()
         self.x = 0
         self.y = 0
         self.copy = 0
+        self.move_board = []
+        
+        self.turn = "W"
+
+        self.won = "None"
+
+        self.game_active = True
 
 
     def generate_board(self):
@@ -48,25 +50,54 @@ class Game:
                 self.board.blit(tile, tile_rect)
 
     def import_pieces(self):
-        for row_index, row in enumerate(PIECES):
+        for row_index, row in enumerate(self.pieces):
             for col_index, val in enumerate(row):
-                if val:
-                    temp_piece = Piece(val, (col_index*TILE_SIZE, row_index*TILE_SIZE))
-                    self.piece_group.add(temp_piece)
+                if val != 0:
+                    temp_piece = Piece(val, (col_index, row_index))
                     if val[1] == "R":
-                        self.logic_board[row_index][col_index] = Rook(val[0], (row_index, col_index))
+                        rook = Rook(val, (col_index, row_index))
+                        self.graphics_piece_board[row_index][col_index] = rook
+                        self.piece_group.add(rook)
+                    elif val[1] == "Q":
+                        queen = Queen(val, (col_index, row_index))
+                        self.graphics_piece_board[row_index][col_index] = queen
+                        self.piece_group.add(queen)
+                    elif val[1] == "P":
+                        pawn = Pawn(val, (col_index, row_index))
+                        self.graphics_piece_board[row_index][col_index] = pawn
+                        self.piece_group.add(pawn)
+                    elif val[1] == "B":
+                        bishop = Bishop(val, (col_index, row_index))
+                        self.graphics_piece_board[row_index][col_index] = bishop
+                        self.piece_group.add(bishop)
+                    elif val[1] == "K":
+                        king = King(val, (col_index, row_index))
+                        self.graphics_piece_board[row_index][col_index] = king
+                        self.piece_group.add(king)
+                        self.kings.append(king)
+                    elif val[1] == "H":
+                        horse = Horse(val, (col_index, row_index))
+                        self.graphics_piece_board[row_index][col_index] = horse
+                        self.piece_group.add(horse)
     
     def mouse_move(self):
-        x, y = pygame.mouse.get_pos()
-        x = int((x-x%TILE_SIZE)/TILE_SIZE)
-        y = int((y-y%TILE_SIZE)/TILE_SIZE)
         if self.copy != 0:
             copy_rect = self.copy.get_rect(center = pygame.mouse.get_pos())
             self.screen.blit(self.copy, copy_rect)
-        elif self.pieces[y][x] != 0:
-            self.x = y
-            self.y = x
-            self.copy = pygame.image.load(f"graphics/{self.pieces[y][x].type}.png").convert_alpha()
+        else:
+            x,y = pygame.mouse.get_pos()
+            self.x = int((x-x%TILE_SIZE)/TILE_SIZE)
+            self.y = int((y-y%TILE_SIZE)/TILE_SIZE)
+            if self.pieces[self.y][self.x] != 0:
+                if self.pieces[self.y][self.x][0] != self.turn:
+                    return
+                self.move_board = self.graphics_piece_board[self.y][self.x].all_available(deepcopy(self.pieces))
+        if self.pieces[self.y][self.x] != 0:
+            for row_index, row in enumerate(self.move_board):
+                for col_index, val in enumerate(row):
+                    if val == "X":
+                        pygame.draw.circle(self.screen, (130, 237, 92),(col_index*TILE_SIZE+50, row_index*TILE_SIZE+50), 20)
+            self.copy = pygame.image.load(f"graphics/{self.pieces[self.y][self.x]}.png").convert_alpha()
             pygame.Surface.set_alpha(self.copy, 180)
             copy_rect = self.copy.get_rect(center = pygame.mouse.get_pos())
             self.screen.blit(self.copy, copy_rect)
@@ -75,18 +106,32 @@ class Game:
         dest_x, dest_y = pygame.mouse.get_pos()
         dest_x = int((dest_x-dest_x%TILE_SIZE)/TILE_SIZE)
         dest_y = int((dest_y-dest_y%TILE_SIZE)/TILE_SIZE)
+        if dest_x != self.x or dest_y != self.y:
+            if self.move_board[dest_y][dest_x] == "X":
+                if self.graphics_piece_board[dest_y][dest_x] != 0:
+                    pygame.sprite.Sprite.kill(self.graphics_piece_board[dest_y][dest_x])
+                self.graphics_piece_board[dest_y][dest_x] = self.graphics_piece_board[self.y][self.x]
+                self.graphics_piece_board[dest_y][dest_x].update_pos((dest_x, dest_y))
+                self.graphics_piece_board[self.y][self.x] = 0
 
-        temp_board = self.logic_board[self.x][self.y].all_available(self.pieces)
-        if temp_board[dest_y][dest_x] == "X":
-            self.logic_board[dest_y][dest_x] = self.logic_board[self.x][self.y]
-            self.logic_board[self.x][self.y] = 0
- 
-            self.pieces[dest_y][dest_x] = self.pieces[self.x][self.y]
-            self.pieces[dest_y][dest_x].update_pos((dest_x*TILE_SIZE, dest_y*TILE_SIZE))
-            self.pieces[self.x][self.y] = 0
+                if self.pieces[dest_y][dest_x] != 0 and self.pieces[dest_y][dest_x][1] == "K":
+                    self.game_active = False
+                    self.won = self.pieces[self.y][self.x][0]
+
+                self.pieces[dest_y][dest_x] = self.pieces[self.y][self.x]
+                self.pieces[self.y][self.x] = 0
+
+
+                if self.turn == "W":
+                    self.turn = "B"
+                else:
+                    self.turn = "W"
+        elif self.pieces[dest_y][dest_x][1] == "P":
+            self.graphics_piece_board[dest_y][dest_x].didnt_move()
 
     def run(self):
         self.screen.blit(self.board, (0,0))
+        self.piece_group.update()
         self.piece_group.draw(self.screen)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -101,7 +146,8 @@ class Game:
 
         pygame.display.update()
 
+
 if __name__ == "__main__":
     game = Game()
-    while True:
+    while game.game_active:
         game.run()
