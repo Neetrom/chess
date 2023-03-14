@@ -13,6 +13,8 @@ class Piece(pygame.sprite.Sprite):
 
         self.directions = NO_DIR
 
+        self.moved = False
+
     def update_pos(self,pos):
         self.pos = pos
         self.rect = self.image.get_rect(topleft=(pos[0]*TILE_SIZE, pos[1]*TILE_SIZE))
@@ -37,6 +39,12 @@ class Piece(pygame.sprite.Sprite):
                 board[check[0]][check[1]] = "X"
         return board
 
+    def didnt_move(self):
+        self.moved = False
+    
+    def did_move(self):
+        self.moved = True
+
 class Queen(Piece):
     def __init__(self, piece_type, pos):
         super().__init__(piece_type, pos)
@@ -54,11 +62,18 @@ class Rook(Piece):
     def __init__(self, piece_type, pos):
         super().__init__(piece_type, pos)
         self.directions = ROOK_DIR
+        self.moved = False
 
 class KingAndHorse(Piece):
     def __init__(self, piece_type, pos):
         super().__init__(piece_type, pos)
         self.directions = NO_DIR
+    
+    def did_move(self):
+        self.moved = True
+
+    def didnt_move(self):
+        self.moved = False
 
     def all_available(self, board):
         for direction in self.directions:
@@ -74,10 +89,16 @@ class KingAndHorse(Piece):
             board[check[0]][check[1]] = "X"
         return board
 
+    def didnt_move(self):
+        self.moved = False
+
 class King(KingAndHorse):
     def __init__(self, piece_type, pos):
         super().__init__(piece_type, pos)
         self.directions = QUEEN_DIR
+        self.moved = False
+        
+
 
 class Horse(KingAndHorse):
     def __init__(self, piece_type, pos):

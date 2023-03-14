@@ -92,22 +92,41 @@ class Game:
                 if self.pieces[self.y][self.x][0] != self.turn:
                     return
                 self.move_board = self.graphics_piece_board[self.y][self.x].all_available(deepcopy(self.pieces))
+                if self.pieces[self.y][self.x][1] == "K":
+                    self.roszada()
         if self.pieces[self.y][self.x] != 0:
             for row_index, row in enumerate(self.move_board):
                 for col_index, val in enumerate(row):
-                    if val == "X":
+                    if val == "X" or val == "XO" or val == "XD":
                         pygame.draw.circle(self.screen, (130, 237, 92),(col_index*TILE_SIZE+50, row_index*TILE_SIZE+50), 20)
             self.copy = pygame.image.load(f"graphics/{self.pieces[self.y][self.x]}.png").convert_alpha()
             pygame.Surface.set_alpha(self.copy, 180)
             copy_rect = self.copy.get_rect(center = pygame.mouse.get_pos())
             self.screen.blit(self.copy, copy_rect)
-            
+    
+    def roszada(self):
+        if self.graphics_piece_board[self.y][self.x].moved:
+            return
+        if self.graphics_piece_board[self.y][self.x+3] != 0:
+            if self.graphics_piece_board[self.y][self.x+3].type[1] == "R":
+                if not self.graphics_piece_board[self.y][self.x+3].moved and self.pieces[self.y][self.x+1] == 0 and self.pieces[self.y][self.x+2] == 0:
+                    self.move_board[self.y][self.x+2] = "XO"
+
+        if self.graphics_piece_board[self.y][self.x-4] != 0:
+            if self.graphics_piece_board[self.y][self.x-4].type[1] == "R":     
+                if self.pieces[self.y][self.x-3] == 0 and self.pieces[self.y][self.x-2] == 0 and not self.graphics_piece_board[self.y][self.x-4].moved:
+                    self.move_board[self.y][self.x-2] = "XD"
+
     def check_valid_move(self):
         dest_x, dest_y = pygame.mouse.get_pos()
         dest_x = int((dest_x-dest_x%TILE_SIZE)/TILE_SIZE)
         dest_y = int((dest_y-dest_y%TILE_SIZE)/TILE_SIZE)
+        attacked = self.move_board[dest_y][dest_x]
+        swap = 0
+        if attacked == 0:
+            return
         if dest_x != self.x or dest_y != self.y:
-            if self.move_board[dest_y][dest_x] == "X":
+            if attacked[0] == "X":
                 if self.graphics_piece_board[dest_y][dest_x] != 0:
                     pygame.sprite.Sprite.kill(self.graphics_piece_board[dest_y][dest_x])
                 self.graphics_piece_board[dest_y][dest_x] = self.graphics_piece_board[self.y][self.x]
@@ -121,13 +140,29 @@ class Game:
                 self.pieces[dest_y][dest_x] = self.pieces[self.y][self.x]
                 self.pieces[self.y][self.x] = 0
 
-
-                if self.turn == "W":
-                    self.turn = "B"
+            if attacked == "XO" or attacked == "XD":
+                if attacked[1] == "O":
+                    swap = -1
+                    flip = 1
                 else:
-                    self.turn = "W"
-        elif self.pieces[dest_y][dest_x][1] == "P":
+                    swap = 1
+                    flip = -2
+                self.graphics_piece_board[dest_y][dest_x+swap] = self.graphics_piece_board[dest_y][dest_x+flip]
+                self.graphics_piece_board[dest_y][dest_x+swap].update_pos((dest_x+swap, dest_y))
+                self.graphics_piece_board[dest_y][dest_x+flip] = 0
+
+                self.pieces[dest_y][dest_x+swap] = self.pieces[dest_y][dest_x+flip]
+                self.pieces[dest_y][dest_x+flip] = 0
+
+            if self.turn == "W":
+                self.turn = "B"
+            else:
+                self.turn = "W"
+
+        else:
             self.graphics_piece_board[dest_y][dest_x].didnt_move()
+
+        self.graphics_piece_board[dest_y][dest_x+swap].did_move()
 
     def run(self):
         self.screen.blit(self.board, (0,0))
