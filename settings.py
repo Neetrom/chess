@@ -14,7 +14,7 @@ PIECES = [["BR", "BH", "BB", "BQ", "BK", "BB", "BH", "BR"],
           [0, 0, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
           ["WP", "WP", "WP", "WP", "WP", "WP", "WP", "WP"],
-          ["WR", 0,0,0, "WK", 0,0, "WR"]]
+          ["WR", "WH", "WB", "WQ", "WK", "WB", "WH", "WR"]]
 
 BOARD_SIZE = (800,800)
 TILE_SIZE = 100
