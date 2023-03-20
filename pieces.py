@@ -22,7 +22,6 @@ class Piece(pygame.sprite.Sprite):
     def all_available(self, board):
         for direction in self.directions:
             check = [self.pos[1], self.pos[0]]
-            attack = False
             while True:
                 check[0] += direction[0]
                 check[1] += direction[1]
@@ -31,11 +30,8 @@ class Piece(pygame.sprite.Sprite):
                 attacking = board[check[0]][check[1]]
                 if attacking != 0:
                     if attacking[0] == self.type[0]:
+                        board[check[0]][check[1]] = "X"
                         break
-                    elif attack:
-                        break
-                    else:
-                        attack = True
                 board[check[0]][check[1]] = "X"
         return board
 

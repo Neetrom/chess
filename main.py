@@ -100,7 +100,7 @@ class Game:
                     if val == "X" or val == "XO" or val == "XD":
                         pygame.draw.circle(self.screen, (130, 237, 92),(col_index*TILE_SIZE+50, row_index*TILE_SIZE+50), 20)
             self.copy = pygame.image.load(f"graphics/{self.pieces[self.y][self.x]}.png").convert_alpha()
-            pygame.Surface.set_alpha(self.copy, 180)
+            pygame.Surface.set_alpha(self.copy, 100)
             copy_rect = self.copy.get_rect(center = pygame.mouse.get_pos())
             self.screen.blit(self.copy, copy_rect)
     
