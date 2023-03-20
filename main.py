@@ -116,6 +116,20 @@ class Game:
             if self.graphics_piece_board[self.y][self.x-4].type[1] == "R":     
                 if self.pieces[self.y][self.x-3] == 0 and self.pieces[self.y][self.x-2] == 0 and not self.graphics_piece_board[self.y][self.x-4].moved:
                     self.move_board[self.y][self.x-2] = "XD"
+    
+    def move_pieces(self, start_y, start_x, dest_y, dest_x):
+        self.graphics_piece_board[dest_y][dest_x] = self.graphics_piece_board[start_y][start_x]
+        self.graphics_piece_board[dest_y][dest_x].update_pos((dest_x, dest_y))
+        self.graphics_piece_board[start_y][start_x] = 0
+
+        if self.pieces[dest_y][dest_x] != 0 and self.pieces[dest_y][dest_x][1] == "K":
+            self.game_active = False
+            self.won = self.pieces[start_y][start_x][0]
+
+        self.pieces[dest_y][dest_x] = self.pieces[start_y][start_x]
+        self.pieces[start_y][start_x] = 0
+
+        self.graphics_piece_board[dest_y][dest_x].did_move()
 
     def check_valid_move(self):
         dest_x, dest_y = pygame.mouse.get_pos()
@@ -129,16 +143,8 @@ class Game:
             if attacked[0] == "X":
                 if self.graphics_piece_board[dest_y][dest_x] != 0:
                     pygame.sprite.Sprite.kill(self.graphics_piece_board[dest_y][dest_x])
-                self.graphics_piece_board[dest_y][dest_x] = self.graphics_piece_board[self.y][self.x]
-                self.graphics_piece_board[dest_y][dest_x].update_pos((dest_x, dest_y))
-                self.graphics_piece_board[self.y][self.x] = 0
-
-                if self.pieces[dest_y][dest_x] != 0 and self.pieces[dest_y][dest_x][1] == "K":
-                    self.game_active = False
-                    self.won = self.pieces[self.y][self.x][0]
-
-                self.pieces[dest_y][dest_x] = self.pieces[self.y][self.x]
-                self.pieces[self.y][self.x] = 0
+                
+                self.move_pieces(self.y, self.x, dest_y, dest_x)
 
             if attacked == "XO" or attacked == "XD":
                 if attacked[1] == "O":
@@ -147,22 +153,18 @@ class Game:
                 else:
                     swap = 1
                     flip = -2
-                self.graphics_piece_board[dest_y][dest_x+swap] = self.graphics_piece_board[dest_y][dest_x+flip]
-                self.graphics_piece_board[dest_y][dest_x+swap].update_pos((dest_x+swap, dest_y))
-                self.graphics_piece_board[dest_y][dest_x+flip] = 0
-
-                self.pieces[dest_y][dest_x+swap] = self.pieces[dest_y][dest_x+flip]
-                self.pieces[dest_y][dest_x+flip] = 0
+                
+                self.move_pieces(dest_y, dest_x+flip, dest_y, dest_x+swap)
 
             if self.turn == "W":
                 self.turn = "B"
             else:
                 self.turn = "W"
+            
 
         else:
             self.graphics_piece_board[dest_y][dest_x].didnt_move()
 
-        self.graphics_piece_board[dest_y][dest_x+swap].did_move()
 
     def run(self):
         self.screen.blit(self.board, (0,0))

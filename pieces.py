@@ -29,9 +29,9 @@ class Piece(pygame.sprite.Sprite):
                     break
                 attacking = board[check[0]][check[1]]
                 if attacking != 0:
-                    if attacking[0] == self.type[0]:
+                    if attacking[0] != self.type[0]:
                         board[check[0]][check[1]] = "X"
-                        break
+                    break
                 board[check[0]][check[1]] = "X"
         return board
 
