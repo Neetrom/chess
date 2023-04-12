@@ -19,7 +19,7 @@ class Piece(pygame.sprite.Sprite):
         self.pos = pos
         self.rect = self.image.get_rect(topleft=(pos[0]*TILE_SIZE, pos[1]*TILE_SIZE))
     
-    def all_available(self, board):
+    def all_available(self, board, enemy, piece_dict):
         for direction in self.directions:
             check = [self.pos[1], self.pos[0]]
             while True:
@@ -34,9 +34,6 @@ class Piece(pygame.sprite.Sprite):
                     break
                 board[check[0]][check[1]] = "X"
         return board
-
-    def didnt_move(self):
-        self.moved = False
     
     def did_move(self):
         self.moved = True
@@ -68,8 +65,6 @@ class KingAndHorse(Piece):
     def did_move(self):
         self.moved = True
 
-    def didnt_move(self):
-        self.moved = False
 
     def all_available(self, board):
         for direction in self.directions:
@@ -85,8 +80,6 @@ class KingAndHorse(Piece):
             board[check[0]][check[1]] = "X"
         return board
 
-    def didnt_move(self):
-        self.moved = False
 
 class King(KingAndHorse):
     def __init__(self, piece_type, pos):
@@ -94,7 +87,6 @@ class King(KingAndHorse):
         self.directions = QUEEN_DIR
         self.moved = False
         
-
 
 class Horse(KingAndHorse):
     def __init__(self, piece_type, pos):
@@ -111,8 +103,11 @@ class Pawn(Piece):
     def __init__(self, piece_type, pos):
         super().__init__(piece_type, pos)
         self.moved = False
+        self.en_pass = False
     
     def all_available(self, board):
+        if self.en_pass:
+            self.en_pass = False
         if self.type[0] == "W":
             direction = -1
         else:
@@ -120,8 +115,7 @@ class Pawn(Piece):
         if board[self.pos[1]+direction][self.pos[0]] == 0:
             board[self.pos[1]+direction][self.pos[0]] = "X"
         if (not self.moved) and (board[self.pos[1]+direction*2][self.pos[0]] == 0) and board[self.pos[1]+direction][self.pos[0]] == "X":
-            board[self.pos[1]+direction*2][self.pos[0]] = "X"
-            self.moved = True
+            board[self.pos[1]+direction*2][self.pos[0]] = "XL"
         if (self.pos[0] + 1) < 8:
             if board[self.pos[1]+direction][self.pos[0]+1] != 0 and board[self.pos[1]+direction][self.pos[0]+1][0] != self.type[0]:
                 board[self.pos[1]+direction][self.pos[0]+1] = "X"
@@ -129,6 +123,10 @@ class Pawn(Piece):
             if board[self.pos[1]+direction][self.pos[0]-1] != 0 and board[self.pos[1]+direction][self.pos[0]-1][0] != self.type[0]:
                 board[self.pos[1]+direction][self.pos[0]-1] = "X"
         return board
+
+    def en(self):
+        self.en_pass = True
     
-    def didnt_move(self):
-        self.moved = False
+    def ne(self):
+        self.en_pass = False
+    

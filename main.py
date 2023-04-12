@@ -3,6 +3,8 @@ from settings import *
 from pieces import Piece, Rook, Queen, Pawn, Bishop, King, Horse
 from copy import deepcopy
 
+IMPORT_PIECES = {"Q": Queen, "K": King, "P": Pawn, "B": Bishop, "H": Horse, "R": Rook}
+
 class Game:
     def __init__(self):
         pygame.init()
@@ -11,19 +13,19 @@ class Game:
         self.board = pygame.surface.Surface(BOARD_SIZE)
         self.generate_board()
         self.graphics_piece_board = [[0, 0, 0, 0, 0, 0, 0, 0],
-                            [0, 0, 0, 0, 0, 0, 0, 0],
-                            [0, 0, 0, 0, 0, 0, 0, 0],
-                            [0, 0, 0, 0, 0, 0, 0, 0],
-                            [0, 0, 0, 0, 0, 0, 0, 0],
-                            [0, 0, 0, 0, 0, 0, 0, 0],
-                            [0, 0, 0, 0, 0, 0, 0, 0],
-                            [0, 0, 0, 0, 0, 0, 0, 0]]
+                                    [0, 0, 0, 0, 0, 0, 0, 0],
+                                    [0, 0, 0, 0, 0, 0, 0, 0],
+                                    [0, 0, 0, 0, 0, 0, 0, 0],
+                                    [0, 0, 0, 0, 0, 0, 0, 0],
+                                    [0, 0, 0, 0, 0, 0, 0, 0],
+                                    [0, 0, 0, 0, 0, 0, 0, 0],
+                                    [0, 0, 0, 0, 0, 0, 0, 0]]
                 
 
         self.pieces = PIECES
         
         self.piece_group = pygame.sprite.Group()
-        self.kings = []
+        self.color_pieces = {"W": [], "B": [], "WK": (0,0), "BK": (0,0)}
         self.import_pieces()
         self.x = 0
         self.y = 0
@@ -31,10 +33,16 @@ class Game:
         self.move_board = []
         
         self.turn = "W"
+        self.enemy = "B"
 
         self.won = "None"
 
         self.game_active = True
+
+        self.direction = 0
+
+        self.prev = 0
+
 
 
     def generate_board(self):
@@ -53,32 +61,12 @@ class Game:
         for row_index, row in enumerate(self.pieces):
             for col_index, val in enumerate(row):
                 if val != 0:
-                    temp_piece = Piece(val, (col_index, row_index))
-                    if val[1] == "R":
-                        rook = Rook(val, (col_index, row_index))
-                        self.graphics_piece_board[row_index][col_index] = rook
-                        self.piece_group.add(rook)
-                    elif val[1] == "Q":
-                        queen = Queen(val, (col_index, row_index))
-                        self.graphics_piece_board[row_index][col_index] = queen
-                        self.piece_group.add(queen)
-                    elif val[1] == "P":
-                        pawn = Pawn(val, (col_index, row_index))
-                        self.graphics_piece_board[row_index][col_index] = pawn
-                        self.piece_group.add(pawn)
-                    elif val[1] == "B":
-                        bishop = Bishop(val, (col_index, row_index))
-                        self.graphics_piece_board[row_index][col_index] = bishop
-                        self.piece_group.add(bishop)
-                    elif val[1] == "K":
-                        king = King(val, (col_index, row_index))
-                        self.graphics_piece_board[row_index][col_index] = king
-                        self.piece_group.add(king)
-                        self.kings.append(king)
-                    elif val[1] == "H":
-                        horse = Horse(val, (col_index, row_index))
-                        self.graphics_piece_board[row_index][col_index] = horse
-                        self.piece_group.add(horse)
+                    piece = IMPORT_PIECES.get(val[1])(val, (col_index, row_index))
+                    self.graphics_piece_board[row_index][col_index] = piece
+                    self.piece_group.add(piece)
+                    self.color_pieces[val[0]].append(piece)
+                    if val[1] == "K":
+                        self.color_pieces[val] = (col_index, row_index)
     
     def mouse_move(self):
         if self.copy != 0:
@@ -91,18 +79,36 @@ class Game:
             if self.pieces[self.y][self.x] != 0:
                 if self.pieces[self.y][self.x][0] != self.turn:
                     return
-                self.move_board = self.graphics_piece_board[self.y][self.x].all_available(deepcopy(self.pieces))
+                self.move_board = self.graphics_piece_board[self.y][self.x].all_available(deepcopy(self.pieces), self.enemy, self.color_pieces)
                 if self.pieces[self.y][self.x][1] == "K":
                     self.roszada()
+                elif self.pieces[self.y][self.x][1] == "P":
+                    self.en_passa()
         if self.pieces[self.y][self.x] != 0:
             for row_index, row in enumerate(self.move_board):
                 for col_index, val in enumerate(row):
-                    if val == "X" or val == "XO" or val == "XD":
+                    if val == 0:
+                        continue
+                    if val[0] == "X":
                         pygame.draw.circle(self.screen, (130, 237, 92),(col_index*TILE_SIZE+50, row_index*TILE_SIZE+50), 20)
             self.copy = pygame.image.load(f"graphics/{self.pieces[self.y][self.x]}.png").convert_alpha()
             pygame.Surface.set_alpha(self.copy, 100)
             copy_rect = self.copy.get_rect(center = pygame.mouse.get_pos())
             self.screen.blit(self.copy, copy_rect)
+    
+    def en_passa(self):
+        if self.turn == "W":
+            self.direction = -1
+        else:
+            self.direction = 1
+        for offset in [-1, 1]:
+            if self.x+offset > 7 or self.x+offset < 1:
+                continue
+            if self.graphics_piece_board[self.y][self.x+offset] != 0:
+                if self.graphics_piece_board[self.y][self.x+offset].type[0] !=  self.graphics_piece_board[self.y][self.x].type[0]:
+                    if self.graphics_piece_board[self.y][self.x+offset].type[1] == "P":
+                        if self.graphics_piece_board[self.y][self.x+offset].en_pass:
+                            self.move_board[self.y+self.direction][self.x+offset] = "XP"
     
     def roszada(self):
         if self.graphics_piece_board[self.y][self.x].moved:
@@ -140,6 +146,9 @@ class Game:
         if attacked == 0:
             return
         if dest_x != self.x or dest_y != self.y:
+            if self.prev != 0:
+                self.prev.ne()
+                self.prev = 0
             if attacked[0] == "X":
                 if self.graphics_piece_board[dest_y][dest_x] != 0:
                     pygame.sprite.Sprite.kill(self.graphics_piece_board[dest_y][dest_x])
@@ -155,16 +164,21 @@ class Game:
                     flip = -2
                 
                 self.move_pieces(dest_y, dest_x+flip, dest_y, dest_x+swap)
+            if attacked == "XP":
+                pygame.sprite.Sprite.kill(self.graphics_piece_board[dest_y-self.direction][dest_x])
+                self.graphics_piece_board[dest_y-self.direction][dest_x] = 0
+                self.pieces[dest_y-self.direction][dest_x] = 0
+            
+            if attacked == "XL":
+                self.graphics_piece_board[dest_y][dest_x].en()
+                self.prev = self.graphics_piece_board[dest_y][dest_x]
 
             if self.turn == "W":
                 self.turn = "B"
+                self.enemy = "W"
             else:
                 self.turn = "W"
-            
-
-        else:
-            self.graphics_piece_board[dest_y][dest_x].didnt_move()
-
+                self.enemy = "B"
 
     def run(self):
         self.screen.blit(self.board, (0,0))
