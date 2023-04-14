@@ -38,6 +38,7 @@ class Game:
         self.won = "None"
 
         self.game_active = True
+        self.promo_menu_bool = False
 
         self.direction = 0
 
@@ -79,7 +80,7 @@ class Game:
             if self.pieces[self.y][self.x] != 0:
                 if self.pieces[self.y][self.x][0] != self.turn:
                     return
-                self.move_board = self.graphics_piece_board[self.y][self.x].all_available(deepcopy(self.pieces), self.enemy, self.color_pieces)
+                self.move_board = self.graphics_piece_board[self.y][self.x].all_available(deepcopy(self.pieces), self.enemy, self.color_pieces, False)
                 if self.pieces[self.y][self.x][1] == "K":
                     self.roszada()
                 elif self.pieces[self.y][self.x][1] == "P":
@@ -111,7 +112,7 @@ class Game:
                             self.move_board[self.y+self.direction][self.x+offset] = "XP"
     
     def roszada(self):
-        if self.graphics_piece_board[self.y][self.x].moved:
+        if self.graphics_piece_board[self.y][self.x].did_it_move():
             return
         if self.graphics_piece_board[self.y][self.x+3] != 0:
             if self.graphics_piece_board[self.y][self.x+3].type[1] == "R":
@@ -145,40 +146,108 @@ class Game:
         swap = 0
         if attacked == 0:
             return
-        if dest_x != self.x or dest_y != self.y:
-            if self.prev != 0:
-                self.prev.ne()
-                self.prev = 0
-            if attacked[0] == "X":
-                if self.graphics_piece_board[dest_y][dest_x] != 0:
-                    pygame.sprite.Sprite.kill(self.graphics_piece_board[dest_y][dest_x])
-                
-                self.move_pieces(self.y, self.x, dest_y, dest_x)
+        if (dest_x == self.x and dest_y == self.y) or attacked[0] == self.move_board[self.y][self.x][0]:
+            return
+        if self.prev != 0:
+            self.prev.ne()
+            self.prev = 0
+        if attacked[0] == "X":
+            if self.graphics_piece_board[dest_y][dest_x] != 0:
+                pygame.sprite.Sprite.kill(self.graphics_piece_board[dest_y][dest_x])
+        
+        self.move_pieces(self.y, self.x, dest_y, dest_x)
 
-            if attacked == "XO" or attacked == "XD":
-                if attacked[1] == "O":
-                    swap = -1
-                    flip = 1
-                else:
-                    swap = 1
-                    flip = -2
-                
-                self.move_pieces(dest_y, dest_x+flip, dest_y, dest_x+swap)
-            if attacked == "XP":
-                pygame.sprite.Sprite.kill(self.graphics_piece_board[dest_y-self.direction][dest_x])
-                self.graphics_piece_board[dest_y-self.direction][dest_x] = 0
-                self.pieces[dest_y-self.direction][dest_x] = 0
-            
-            if attacked == "XL":
-                self.graphics_piece_board[dest_y][dest_x].en()
-                self.prev = self.graphics_piece_board[dest_y][dest_x]
+        print(self.color_pieces[f"{self.turn}K"])
+        if self.graphics_piece_board[dest_y][dest_x].type[1] == "K":
+            self.color_pieces[f"{self.turn}K"] = (dest_x, dest_y)
+        
+        print(self.color_pieces[f"{self.turn}K"])
 
-            if self.turn == "W":
-                self.turn = "B"
-                self.enemy = "W"
+        if attacked == "XO" or attacked == "XD":
+            if attacked[1] == "O":
+                swap = -1
+                flip = 1
             else:
-                self.turn = "W"
-                self.enemy = "B"
+                swap = 1
+                flip = -2
+            
+            self.move_pieces(dest_y, dest_x+flip, dest_y, dest_x+swap)
+        
+        if attacked == "XP":
+            pygame.sprite.Sprite.kill(self.graphics_piece_board[dest_y-self.direction][dest_x])
+            self.graphics_piece_board[dest_y-self.direction][dest_x] = 0
+            self.pieces[dest_y-self.direction][dest_x] = 0
+        
+        if attacked == "XL":
+            self.graphics_piece_board[dest_y][dest_x].en()
+            self.prev = self.graphics_piece_board[dest_y][dest_x]
+
+        if (self.graphics_piece_board[dest_y][dest_x].type[1] == "P") and (dest_y == 7 or dest_y == 0):
+            self.promo_menu_bool = True
+            while self.promo_menu_bool:
+                self.handle_promo(dest_x, dest_y)
+
+        if self.turn == "W":
+            self.turn = "B"
+            self.enemy = "W"
+        else:
+            self.turn = "W"
+            self.enemy = "B"
+        
+
+    def gen_promo_menu(self):
+        self.promo_menu = pygame.surface.Surface((TILE_SIZE*4, TILE_SIZE))
+        self.promo_menu.fill((140, 232, 130))
+        separator = pygame.surface.Surface((4, TILE_SIZE))
+        separator.fill("black")
+        
+        i = 0
+        for piece in PROMO:
+            image = pygame.image.load(f"graphics/{self.turn}{piece}.png")
+            image_rect = image.get_rect(topleft=(i, 0))
+            self.promo_menu.blit(image, image_rect)
+            self.promo_menu.blit(separator, (i,0))
+            i = i+TILE_SIZE
+
+        self.promo_menu.blit(separator, (i-5,0))
+        border = pygame.transform.scale(separator, (TILE_SIZE*4, 4))
+        self.promo_menu.blit(border, (0,0))
+        self.promo_menu.blit(border, (0,TILE_SIZE-5))
+
+        self.promo_menu = pygame.transform.rotozoom(self.promo_menu, 0, 1.1)
+        self.promo_menu_rect = self.promo_menu.get_rect(center=(BOARD_SIZE[0]/2, BOARD_SIZE[1]/2))
+        self.screen.blit(self.promo_menu, self.promo_menu_rect)
+
+
+    def pick_promo(self, dest_x, dest_y):
+        if not pygame.mouse.get_pressed()[0]:
+            return
+        mouse_pos = pygame.mouse.get_pos()
+        if pygame.Rect.collidepoint(self.promo_menu_rect, mouse_pos):
+            x = (mouse_pos[0] - self.promo_menu_rect.topleft[0])//TILE_SIZE
+            funny_dict = {0: "Q", 1: "B", 2: "H", 3: "R"}
+            piece_type = funny_dict[x]
+            
+            self.color_pieces[self.turn].remove(self.graphics_piece_board[dest_y][dest_x])
+            self.piece_group.remove(self.graphics_piece_board[dest_y][dest_x])
+            pygame.sprite.Sprite.kill(self.graphics_piece_board[dest_y][dest_x])
+            self.graphics_piece_board[dest_y][dest_x] = 0
+
+            piece = IMPORT_PIECES.get(piece_type)(f"{self.turn}{piece_type}", (dest_x, dest_y))
+            self.graphics_piece_board[dest_y][dest_x] = piece
+            self.piece_group.add(piece)
+            self.color_pieces[self.turn].append(piece)
+
+            self.promo_menu_bool = False
+
+    def handle_promo(self, dest_x, dest_y):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+        self.gen_promo_menu()
+        self.pick_promo(dest_x, dest_y)
+        pygame.display.update()
 
     def run(self):
         self.screen.blit(self.board, (0,0))
@@ -194,7 +263,6 @@ class Game:
             if self.copy != 0:
                 self.check_valid_move()
                 self.copy = 0
-
         pygame.display.update()
 
 
