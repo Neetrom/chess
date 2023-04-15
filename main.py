@@ -1,7 +1,9 @@
 import pygame, sys
 from settings import *
-from pieces import Piece, Rook, Queen, Pawn, Bishop, King, Horse
 from copy import deepcopy
+from king import King
+from pawn import Pawn
+from basic_pieces import Rook, Queen, Bishop, Horse
 
 IMPORT_PIECES = {"Q": Queen, "K": King, "P": Pawn, "B": Bishop, "H": Horse, "R": Rook}
 
