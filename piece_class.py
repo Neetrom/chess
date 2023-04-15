@@ -37,15 +37,17 @@ class Piece(pygame.sprite.Sprite):
                     if attacking[0] != self.type[0] and attacking[0] != "X":
                         if not rek:
                             if self.check_for_check(deepcopy(b_copy), enemy, piece_dict, check):
-                                board[check[0]][check[1]] = "X"
+                                board[check[0]][check[1]] = str(board[check[0]][check[1]]) + "X"
                         else:
-                            board[check[0]][check[1]] = "X"
+                            board[check[0]][check[1]] = str(board[check[0]][check[1]]) + "X"
+                            if attacking[0] == "0":
+                                continue
                     break
                 if not rek:
                     if self.check_for_check(deepcopy(b_copy), enemy, piece_dict, check):
-                        board[check[0]][check[1]] = "X"
+                        board[check[0]][check[1]] = str(board[check[0]][check[1]]) + "X"
                 else:
-                    board[check[0]][check[1]] = "X"
+                    board[check[0]][check[1]] = str(board[check[0]][check[1]]) + "X"
         return board
     
     def check_for_check(self, board, enemy, piece_dict, dest):
@@ -54,9 +56,9 @@ class Piece(pygame.sprite.Sprite):
         king_pos = piece_dict[f"{self.type[0]}K"]
         for piece in piece_dict[enemy]:
             piece.all_available(board, enemy, piece_dict, True)
-        if board[king_pos[1]][king_pos[0]] == f"{self.type[0]}K":
-            return True
-        return False
+            if board[king_pos[1]][king_pos[0]] != f"{self.type[0]}K":
+                return False
+        return True
     
     def __str__(self):
         return f"{self.type}"
@@ -83,8 +85,8 @@ class KingAndHorse(Piece):
                     continue
             if not rek:
                 if self.check_for_check(deepcopy(b_copy), enemy, piece_dict, (check[0], check[1])):
-                    board[check[0]][check[1]] = "X"
+                    board[check[0]][check[1]] = str(board[check[0]][check[1]]) + "X"
             else:
-                board[check[0]][check[1]] = "X"
+                board[check[0]][check[1]] = str(board[check[0]][check[1]]) + "X"
         return board
 

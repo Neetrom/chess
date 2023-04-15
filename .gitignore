@@ -3,3 +3,4 @@ tempCodeRunnerFile.py
 __pycache__/settings.cpython-310.pyc
 __pycache__/pieces.cpython-310.pyc
 __pycache__/settings.cpython-310.pyc
+*.pyc

@@ -19,29 +19,29 @@ class Pawn(Piece):
         if board[self.pos[1]+direction][self.pos[0]] == 0:
             if not rek:
                 if self.check_for_check(deepcopy(b_copy), enemy, piece_dict, (self.pos[1]+direction,self.pos[0])):
-                    board[self.pos[1]+direction][self.pos[0]] = "X"
+                    board[self.pos[1]+direction][self.pos[0]] = str(board[self.pos[1]+direction][self.pos[0]]) + "X"
             else:
-                board[self.pos[1]+direction][self.pos[0]] = "X"
-        if (not self.moved) and (board[self.pos[1]+direction*2][self.pos[0]] == 0) and (board[self.pos[1]+direction][self.pos[0]] == "X"):
+                board[self.pos[1]+direction][self.pos[0]] = str(board[self.pos[1]+direction][self.pos[0]]) + "X"
+        if (not self.moved) and (board[self.pos[1]+direction*2][self.pos[0]] == 0) and ("X" in str(board[self.pos[1]+direction][self.pos[0]])):
             if not rek:
                 if self.check_for_check(deepcopy(b_copy), enemy, piece_dict, (self.pos[1]+direction*2, self.pos[0])):
-                    board[self.pos[1]+direction*2][self.pos[0]] = "XL"
+                    board[self.pos[1]+direction*2][self.pos[0]] = str(board[self.pos[1]+direction*2][self.pos[0]]) + "XL"
             else:
-                board[self.pos[1]+direction*2][self.pos[0]] = "XL"
+                board[self.pos[1]+direction*2][self.pos[0]] = str(board[self.pos[1]+direction*2][self.pos[0]]) + "XL"
         if (self.pos[0] + 1) < 8:
             if board[self.pos[1]+direction][self.pos[0]+1] != 0 and board[self.pos[1]+direction][self.pos[0]+1][0] != self.type[0]:
                 if not rek:
                     if self.check_for_check(deepcopy(b_copy), enemy, piece_dict, (self.pos[1]+direction, self.pos[0]+1)):
-                        board[self.pos[1]+direction][self.pos[0]+1] = "X"
+                        board[self.pos[1]+direction][self.pos[0]+1] = str(board[self.pos[1]+direction][self.pos[0]+1]) + "X"
                 else:
-                    board[self.pos[1]+direction][self.pos[0]+1] = "X"
+                    board[self.pos[1]+direction][self.pos[0]+1] = str(board[self.pos[1]+direction][self.pos[0]+1]) + "X"
         if (self.pos[0] - 1) >= 0:
             if board[self.pos[1]+direction][self.pos[0]-1] != 0 and board[self.pos[1]+direction][self.pos[0]-1][0] != self.type[0]:
                 if not rek:
                     if self.check_for_check(deepcopy(b_copy), enemy, piece_dict, (self.pos[1]+direction, self.pos[0]-1)):
-                        board[self.pos[1]+direction][self.pos[0]-1] = "X"
+                        board[self.pos[1]+direction][self.pos[0]-1] = str(board[self.pos[1]+direction][self.pos[0]-1]) + "X"
                 else:
-                    board[self.pos[1]+direction][self.pos[0]-1] = "X"
+                    board[self.pos[1]+direction][self.pos[0]-1] = str(board[self.pos[1]+direction][self.pos[0]-1]) + "X"
         return board
 
     def en(self):

@@ -14,6 +14,6 @@ class King(KingAndHorse):
         board[self.pos[1]][self.pos[0]] = 0
         for piece in piece_dict[enemy]:
             piece.all_available(board, enemy, piece_dict, True)
-        if board[dest[0]][dest[1]] == self.type:
-            return True
-        return False
+            if board[dest[0]][dest[1]] != self.type:
+                return False
+        return True

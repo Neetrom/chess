@@ -17,7 +17,7 @@ PIECES = [["BR", "BH", "BB", "BQ", "BK", "BB", "BH", "BR"],
           ["WR", "WH", "WB", "WQ", "WK", "WB", "WH", "WR"]]
 
 BOARD_SIZE = (800,800)
-TILE_SIZE = 100
+TILE_SIZE = BOARD_SIZE[0]//8
 
 ROOK_DIR = [[1, 0], [-1, 0], [0, 1], [0, -1]]
 BISH_DIR = [[1, 1], [-1, 1], [-1, -1], [1, -1]]
