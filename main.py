@@ -157,11 +157,9 @@ class Game:
         
         self.move_pieces(self.y, self.x, dest_y, dest_x)
 
-        print(self.color_pieces[f"{self.turn}K"])
         if self.graphics_piece_board[dest_y][dest_x].type[1] == "K":
             self.color_pieces[f"{self.turn}K"] = (dest_x, dest_y)
-        
-        print(self.color_pieces[f"{self.turn}K"])
+
 
         if attacked == "XO" or attacked == "XD":
             if attacked[1] == "O":
