@@ -33,26 +33,26 @@ class Piece(pygame.sprite.Sprite):
                 if check[0] == 8 or check[0] == -1 or check[1] == 8 or check[1] == -1:
                     break
                 attacking = board[check[0]][check[1]]
-                if attacking != 0:
-                    if attacking[0] != self.type[0] and attacking[0] != "X":
+                if attacking != "00":
+                    if attacking[0] != self.type[0] and "X" not in attacking:
                         if not rek:
                             if self.check_for_check(deepcopy(b_copy), enemy, piece_dict, check):
-                                board[check[0]][check[1]] = str(board[check[0]][check[1]]) + "X"
+                                board[check[0]][check[1]] = board[check[0]][check[1]] + "X"
                         else:
-                            board[check[0]][check[1]] = str(board[check[0]][check[1]]) + "X"
+                            board[check[0]][check[1]] = board[check[0]][check[1]] + "X"
                             if attacking[0] == "0":
                                 continue
                     break
                 if not rek:
                     if self.check_for_check(deepcopy(b_copy), enemy, piece_dict, check):
-                        board[check[0]][check[1]] = str(board[check[0]][check[1]]) + "X"
+                        board[check[0]][check[1]] = board[check[0]][check[1]] + "X"
                 else:
-                    board[check[0]][check[1]] = str(board[check[0]][check[1]]) + "X"
+                    board[check[0]][check[1]] = board[check[0]][check[1]] + "X"
         return board
     
     def check_for_check(self, board, enemy, piece_dict, dest):
         board[dest[0]][dest[1]] = board[self.pos[1]][self.pos[0]]
-        board[self.pos[1]][self.pos[0]] = 0
+        board[self.pos[1]][self.pos[0]] = "00"
         king_pos = piece_dict[f"{self.type[0]}K"]
         for piece in piece_dict[enemy]:
             piece.all_available(board, enemy, piece_dict, True)
@@ -80,13 +80,12 @@ class KingAndHorse(Piece):
             if (check[0] > 7) or (check[0] < 0) or (check[1] > 7) or (check[1] < 0):
                 continue
             attacking = board[check[0]][check[1]]
-            if attacking != 0:
-                if attacking[0] == self.type[0]:
-                    continue
+            if attacking[0] == self.type[0]:
+                continue
             if not rek:
                 if self.check_for_check(deepcopy(b_copy), enemy, piece_dict, (check[0], check[1])):
-                    board[check[0]][check[1]] = str(board[check[0]][check[1]]) + "X"
+                    board[check[0]][check[1]] = board[check[0]][check[1]] + "X"
             else:
-                board[check[0]][check[1]] = str(board[check[0]][check[1]]) + "X"
+                board[check[0]][check[1]] = board[check[0]][check[1]] + "X"
         return board
 

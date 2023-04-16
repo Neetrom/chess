@@ -1,6 +1,4 @@
-import pygame
 from settings import QUEEN_DIR
-from copy import deepcopy, copy
 from piece_class import KingAndHorse
 
 class King(KingAndHorse):
@@ -11,7 +9,7 @@ class King(KingAndHorse):
     
     def check_for_check(self, board, enemy, piece_dict, dest):
         board[dest[0]][dest[1]] = board[self.pos[1]][self.pos[0]]
-        board[self.pos[1]][self.pos[0]] = 0
+        board[self.pos[1]][self.pos[0]] = "00"
         for piece in piece_dict[enemy]:
             piece.all_available(board, enemy, piece_dict, True)
             if board[dest[0]][dest[1]] != self.type:

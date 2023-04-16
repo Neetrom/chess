@@ -4,3 +4,6 @@ __pycache__/settings.cpython-310.pyc
 __pycache__/pieces.cpython-310.pyc
 __pycache__/settings.cpython-310.pyc
 *.pyc
+__pycache__/pawn.cpython-310.pyc
+__pycache__/king.cpython-310.pyc
+__pycache__/piece_class.cpython-310.pyc

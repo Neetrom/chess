@@ -10,7 +10,6 @@ class Horse(KingAndHorse):
         super().__init__(piece_type, pos)
         self.directions = HORSE_DIR
 
-
 class Bishop(Piece):
     def __init__(self, piece_type, pos):
         super().__init__(piece_type, pos)
