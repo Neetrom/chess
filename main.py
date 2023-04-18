@@ -91,14 +91,14 @@ class Game:
                     self.roszada()
                 elif self.pieces[self.y][self.x][1] == "P":
                     self.en_passa()
+        
+        self.draw_trans()
 
+    def draw_trans(self):
         if self.pieces[self.y][self.x] == "00":
             return
-        
         for row_index, row in enumerate(self.move_board):
             for col_index, val in enumerate(row):
-                if val == "00":
-                    continue
                 if "X" in val:
                     pygame.draw.circle(self.screen, (130, 237, 92),(col_index*TILE_SIZE+50, row_index*TILE_SIZE+50), 20)
         self.copy = pygame.image.load(f"graphics/{self.pieces[self.y][self.x]}.png").convert_alpha()

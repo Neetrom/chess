@@ -15,13 +15,13 @@ class Pawn(Piece):
             direction = -1
         else:
             direction = 1
-        if board[self.pos[1]+direction][self.pos[0]] == "00":
+        if  "00" in board[self.pos[1]+direction][self.pos[0]]:
             if not rek:
                 if self.check_for_check(deepcopy(b_copy), enemy, piece_dict, (self.pos[1]+direction,self.pos[0])):
                     board[self.pos[1]+direction][self.pos[0]] = board[self.pos[1]+direction][self.pos[0]] + "X"
             else:
                 board[self.pos[1]+direction][self.pos[0]] = board[self.pos[1]+direction][self.pos[0]] + "X"
-        if (not self.moved) and (board[self.pos[1]+direction*2][self.pos[0]] == "00") and ("X" in board[self.pos[1]+direction][self.pos[0]]):
+        if (not self.moved) and ("00" in board[self.pos[1]+direction*2][self.pos[0]]) and ("X" in board[self.pos[1]+direction][self.pos[0]]):
             if not rek:
                 if self.check_for_check(deepcopy(b_copy), enemy, piece_dict, (self.pos[1]+direction*2, self.pos[0])):
                     board[self.pos[1]+direction*2][self.pos[0]] = board[self.pos[1]+direction*2][self.pos[0]] + "XL"

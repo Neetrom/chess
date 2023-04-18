@@ -34,7 +34,7 @@ class Piece(pygame.sprite.Sprite):
                     break
                 attacking = board[check[0]][check[1]]
                 if attacking != "00":
-                    if attacking[0] != self.type[0] and "X" not in attacking:
+                    if attacking[0] != self.type[0]:
                         if not rek:
                             if self.check_for_check(deepcopy(b_copy), enemy, piece_dict, check):
                                 board[check[0]][check[1]] = board[check[0]][check[1]] + "X"
@@ -51,7 +51,7 @@ class Piece(pygame.sprite.Sprite):
         return board
     
     def check_for_check(self, board, enemy, piece_dict, dest):
-        board[dest[0]][dest[1]] = board[self.pos[1]][self.pos[0]]
+        board[dest[0]][dest[1]] = copy(board[self.pos[1]][self.pos[0]])
         board[self.pos[1]][self.pos[0]] = "00"
         king_pos = piece_dict[f"{self.type[0]}K"]
         for piece in piece_dict[enemy]:
@@ -83,7 +83,7 @@ class KingAndHorse(Piece):
             if attacking[0] == self.type[0]:
                 continue
             if not rek:
-                if self.check_for_check(deepcopy(b_copy), enemy, piece_dict, (check[0], check[1])):
+                if self.check_for_check(deepcopy(b_copy), enemy, piece_dict, check):
                     board[check[0]][check[1]] = board[check[0]][check[1]] + "X"
             else:
                 board[check[0]][check[1]] = board[check[0]][check[1]] + "X"
