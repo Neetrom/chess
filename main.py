@@ -82,7 +82,7 @@ class Game:
 
                 self.logic_board[row_index][col_index] = piece
                 if val[1] == "K":
-                    self.color_pieces[val] = piece
+                    self.color_pieces[val] = (row_index, col_index)
     
     def get_cords(self):
         x,y = pygame.mouse.get_pos()
@@ -116,35 +116,7 @@ class Game:
         copy_rect = self.copy.get_rect(center = pygame.mouse.get_pos())
         self.screen.blit(self.copy, copy_rect)
     
-    def en_passa(self):
-        if self.turn == "W":
-            self.direction = -1
-        else:
-            self.direction = 1
-        for offset in [-1, 1]:
-            if self.x+offset > 7 or self.x+offset < 1:
-                continue
-            if self.graphics_piece_board[self.y][self.x+offset].is_empty():
-                continue
-            if self.graphics_piece_board[self.y][self.x+offset].get_type("full") != f"{self.enemy}P":
-                continue
-            if self.graphics_piece_board[self.y][self.x+offset].en_pass:
-                self.move_board[self.y+self.direction][self.x+offset] = self.move_board[self.y+self.direction][self.x+offset] + "XP"
-            
-            
-    def roszada(self):
-        if self.graphics_piece_board[self.y][self.x].did_it_move():
-            return
-        if self.graphics_piece_board[self.y][self.x+3] != 0:
-            if self.graphics_piece_board[self.y][self.x+3].type[1] == "R":
-                if not self.graphics_piece_board[self.y][self.x+3].moved and self.pieces[self.y][self.x+1] == "00" and self.pieces[self.y][self.x+2] == "00":
-                    self.move_board[self.y][self.x+2] = self.move_board[self.y][self.x+2] + "XO"
 
-        if self.graphics_piece_board[self.y][self.x-4] != 0:
-            if self.graphics_piece_board[self.y][self.x-4].type[1] == "R":     
-                if self.pieces[self.y][self.x-3] == "00" and self.pieces[self.y][self.x-2] == "00" and not self.graphics_piece_board[self.y][self.x-4].moved:
-                    self.move_board[self.y][self.x-2] = self.move_board[self.y][self.x-2] + "XD"
-    
     def move_pieces(self, start_y, start_x, dest_y, dest_x):
         if not self.logic_board[dest_y][dest_x].is_empty():
             pygame.sprite.Sprite.kill(self.graphics_piece_board[dest_y][dest_x])
@@ -158,7 +130,7 @@ class Game:
 
         self.logic_board[dest_y][dest_x].did_move()
 
-    def legal(self, dest_x, dest_y, attacked):
+    def wrong_figure_picked(self, dest_x, dest_y, attacked):
         if not attacked.can_be_attacked():
             return False
         if (dest_x == self.x and dest_y == self.y):
@@ -167,13 +139,24 @@ class Game:
             return False
         return True
 
+    def update_king_pos(self, x, y):
+        if self.logic_board[y][x].get_type("figure") == "K":
+            self.color_pieces[f"{self.turn}K"] = (y, x)
+
+    def make_en_passa_possible(self, start_y, x, y):
+        if self.logic_board[y][x].get_type("figure") != "P":
+            return
+        if abs(y-start_y) == 2:
+            self.logic_board[y][x].en()
+
+
     def check_valid_move(self):
         dest_x, dest_y = pygame.mouse.get_pos()
         dest_x = (dest_x-dest_x%TILE_SIZE)//TILE_SIZE
         dest_y = (dest_y-dest_y%TILE_SIZE)//TILE_SIZE
         attacked = self.move_board[dest_y][dest_x]
 
-        if not self.legal(dest_x, dest_y, attacked):
+        if not self.wrong_figure_picked(dest_x, dest_y, attacked):
             return
         
         if self.prev != 0:
@@ -181,6 +164,12 @@ class Game:
             self.prev = 0
         
         self.move_pieces(self.y, self.x, dest_y, dest_x)
+
+        self.update_king_pos(dest_x, dest_y)
+
+        self.make_en_passa_possible(self.y, dest_x, dest_y)
+
+        
 
         # if self.graphics_piece_board[dest_y][dest_x].type[1] == "P":
         #     if "XL" in attacked:

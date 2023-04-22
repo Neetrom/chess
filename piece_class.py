@@ -53,25 +53,25 @@ class Piece:
                 if not attacking.is_empty():
                     if attacking.get_type("color") != self.get_type("color"):
                         if not rek:
-                            if not board[check[0]][check[1]].attacked() and self.check_for_check(deepcopy(b_copy), enemy, piece_dict, check):
-                                board[check[0]][check[1]].attacked()
+                            if not attacking.can_be_attacked() and self.check_for_check(deepcopy(b_copy), enemy, piece_dict, check):
+                                attacking.attacked()
                         else:
-                            board[check[0]][check[1]].attacked()
+                            attacking.attacked()
                     break
-                elif not rek:
-                    if not board[check[0]][check[1]].attacked() and self.check_for_check(deepcopy(b_copy), enemy, piece_dict, check):
-                        board[check[0]][check[1]].attacked()
+                if not rek:
+                    if not attacking.can_be_attacked() and self.check_for_check(deepcopy(b_copy), enemy, piece_dict, check):
+                        attacking.attacked()
                 else:
-                    board[check[0]][check[1]].attacked()
+                    attacking.attacked()
         return board
     
     def check_for_check(self, board, enemy, piece_dict, dest):
         board[dest[0]][dest[1]] = copy(board[self.pos[1]][self.pos[0]])
         board[self.pos[1]][self.pos[0]] = Piece("00", (self.pos))
-        king = piece_dict[f"{self.get_type('color')}K"]
+        king_y, king_x = piece_dict[f"{self.get_type('color')}K"]
         for piece in piece_dict[enemy]:
             piece.all_available(board, enemy, piece_dict, True)
-            if king.can_be_attacked():
+            if board[king_y][king_x].can_be_attacked():
                 return False
         return True
     
@@ -102,7 +102,8 @@ class KingAndHorse(Piece):
         self.directions = NO_DIR
 
     def all_available(self, board, enemy, piece_dict, rek):
-        b_copy = deepcopy(board)
+        if not rek:
+            b_copy = deepcopy(board)
         for direction in self.directions:
             check = [copy(self.pos[1]), copy(self.pos[0])]
             check[0] += direction[0]
@@ -113,9 +114,9 @@ class KingAndHorse(Piece):
             if attacking.get_type("color") == self.get_type("color"):
                 continue
             if not rek:
-                if not board[check[0]][check[1]].attacked() and self.check_for_check(deepcopy(b_copy), enemy, piece_dict, check):
-                    board[check[0]][check[1]].attacked()
+                if not attacking.can_be_attacked() and self.check_for_check(deepcopy(b_copy), enemy, piece_dict, check):
+                    attacking.attacked()
             else:
-                board[check[0]][check[1]].attacked()
+                attacking.attacked()
         return board
 
