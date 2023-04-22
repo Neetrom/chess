@@ -140,15 +140,48 @@ class Game:
         return True
 
     def update_king_pos(self, x, y):
-        if self.logic_board[y][x].get_type("figure") == "K":
-            self.color_pieces[f"{self.turn}K"] = (y, x)
+        self.color_pieces[f"{self.turn}K"] = (y, x)
+    
+    def king_logic(self, x, y):
+        if self.logic_board[y][x].get_type("figure") != "K":
+            return
+        self.update_king_pos(x, y)
+        temp = abs(self.x - x)
+        if temp < 2:
+            return
+        if x == 2:
+           self.move_pieces(y, x-2, y, x+1)
+        else:
+            self.move_pieces(y, x+1, y, x-1)
+        
+    def pass_enn(self, start_y, start_x, x, y):
+        if start_x == x:
+            return
+        if not self.move_board[y][x].is_empty():
+            return
+        pygame.sprite.Sprite.kill(self.graphics_piece_board[start_y][x])
+        self.graphics_piece_board[start_y][x] = 0
+        self.logic_board[start_y][x] = Piece("00", (x, start_y))
+        
 
-    def make_en_passa_possible(self, start_y, x, y):
+    def pawn_logic(self, start_y, start_x, x, y):
         if self.logic_board[y][x].get_type("figure") != "P":
             return
         if abs(y-start_y) == 2:
             self.logic_board[y][x].en()
+            self.prev = self.logic_board[y][x]
+        
+        self.open_promo(x, y)
+        
+        self.pass_enn(start_y, start_x, x, y)
 
+    def open_promo(self, x, y):
+        if y != 0 and y != 7:
+            return
+        self.promo_menu_bool = True
+        self.gen_promo_menu()
+        while self.promo_menu_bool:
+            self.handle_promo(x, y)
 
     def check_valid_move(self):
         dest_x, dest_y = pygame.mouse.get_pos()
@@ -165,37 +198,9 @@ class Game:
         
         self.move_pieces(self.y, self.x, dest_y, dest_x)
 
-        self.update_king_pos(dest_x, dest_y)
+        self.king_logic(dest_x, dest_y)
 
-        self.make_en_passa_possible(self.y, dest_x, dest_y)
-
-        
-
-        # if self.graphics_piece_board[dest_y][dest_x].type[1] == "P":
-        #     if "XL" in attacked:
-        #         self.graphics_piece_board[dest_y][dest_x].en()
-        #         self.prev = self.graphics_piece_board[dest_y][dest_x]
-
-        #     if "XP" in attacked:
-        #         pygame.sprite.Sprite.kill(self.graphics_piece_board[dest_y-self.direction][dest_x])
-        #         self.graphics_piece_board[dest_y-self.direction][dest_x] = 0
-        #         self.pieces[dest_y-self.direction][dest_x] = "00"
-
-        #     if (dest_y == 7 or dest_y == 0):
-        #         self.promo_menu_bool = True
-        #         while self.promo_menu_bool:
-        #             self.handle_promo(dest_x, dest_y)
-        # elif self.graphics_piece_board[dest_y][dest_x].type[1] == "K":
-        #     self.color_pieces[f"{self.turn}K"] = (dest_x, dest_y)
-        #     if ("XO" in attacked or "XD" in attacked):
-        #         if "O" in attacked:
-        #             swap = -1
-        #             flip = 1
-        #         else:
-        #             swap = 1
-        #             flip = -2
-                
-        #         self.move_pieces(dest_y, dest_x+flip, dest_y, dest_x+swap)
+        self.pawn_logic(self.y, self.x, dest_x, dest_y)
 
         if self.turn == "W":
             self.turn = "B"
@@ -226,7 +231,7 @@ class Game:
 
         self.promo_menu = pygame.transform.rotozoom(self.promo_menu, 0, 1.1)
         self.promo_menu_rect = self.promo_menu.get_rect(center=(BOARD_SIZE[0]/2, BOARD_SIZE[1]/2))
-        self.screen.blit(self.promo_menu, self.promo_menu_rect)
+        
 
 
     def pick_promo(self, dest_x, dest_y):
@@ -244,10 +249,9 @@ class Game:
 
             piece = IMPORT_PIECES.get(piece_type)(f"{self.turn}{piece_type}", (dest_x, dest_y))
             graphic_piece = Graphic_piece(f"{self.turn}{piece_type}", (dest_x, dest_y))
-            self.piece_group.add(piece)
+
             self.color_pieces[self.turn].append(piece)
             self.graphics_piece_board[dest_y][dest_x] = graphic_piece
-
             self.piece_group.add(graphic_piece)
             self.logic_board[dest_y][dest_x] = piece
 
@@ -258,7 +262,7 @@ class Game:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-        self.gen_promo_menu()
+        self.screen.blit(self.promo_menu, self.promo_menu_rect)
         self.pick_promo(dest_x, dest_y)
         pygame.display.update()
 
