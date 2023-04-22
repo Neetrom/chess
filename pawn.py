@@ -11,37 +11,61 @@ class Pawn(Piece):
     def all_available(self, board, enemy, piece_dict, rek):
         b_copy = deepcopy(board)
 
-        if self.type[0] == "W":
+        if self.get_type("color") == "W":
             direction = -1
         else:
             direction = 1
-        if  "00" in board[self.pos[1]+direction][self.pos[0]]:
-            if not rek:
-                if self.check_for_check(deepcopy(b_copy), enemy, piece_dict, (self.pos[1]+direction,self.pos[0])):
-                    board[self.pos[1]+direction][self.pos[0]] = board[self.pos[1]+direction][self.pos[0]] + "X"
-            else:
-                board[self.pos[1]+direction][self.pos[0]] = board[self.pos[1]+direction][self.pos[0]] + "X"
-        if (not self.moved) and ("00" in board[self.pos[1]+direction*2][self.pos[0]]) and ("X" in board[self.pos[1]+direction][self.pos[0]]):
-            if not rek:
-                if self.check_for_check(deepcopy(b_copy), enemy, piece_dict, (self.pos[1]+direction*2, self.pos[0])):
-                    board[self.pos[1]+direction*2][self.pos[0]] = board[self.pos[1]+direction*2][self.pos[0]] + "XL"
-            else:
-                board[self.pos[1]+direction*2][self.pos[0]] = board[self.pos[1]+direction*2][self.pos[0]] + "XL"
-        if (self.pos[0] + 1) < 8:
-            if board[self.pos[1]+direction][self.pos[0]+1] != "00" and board[self.pos[1]+direction][self.pos[0]+1][0] != self.type[0]:
-                if not rek:
-                    if self.check_for_check(deepcopy(b_copy), enemy, piece_dict, (self.pos[1]+direction, self.pos[0]+1)):
-                        board[self.pos[1]+direction][self.pos[0]+1] = board[self.pos[1]+direction][self.pos[0]+1] + "X"
-                else:
-                    board[self.pos[1]+direction][self.pos[0]+1] = board[self.pos[1]+direction][self.pos[0]+1] + "X"
-        if (self.pos[0] - 1) >= 0:
-            if board[self.pos[1]+direction][self.pos[0]-1] != "00" and board[self.pos[1]+direction][self.pos[0]-1][0] != self.type[0]:
-                if not rek:
-                    if self.check_for_check(deepcopy(b_copy), enemy, piece_dict, (self.pos[1]+direction, self.pos[0]-1)):
-                        board[self.pos[1]+direction][self.pos[0]-1] = board[self.pos[1]+direction][self.pos[0]-1] + "X"
-                else:
-                    board[self.pos[1]+direction][self.pos[0]-1] = board[self.pos[1]+direction][self.pos[0]-1] + "X"
+
+        self.go_one(board, enemy, piece_dict, rek, b_copy, direction)
+        self.go_two(board, enemy, piece_dict, rek, b_copy, direction)
+        self.attack_left(board, enemy, piece_dict, rek, b_copy, direction)
+        self.attack_right(board, enemy, piece_dict, rek, b_copy, direction)
+
         return board
+
+    def go_one(self, board, enemy, piece_dict, rek, b_copy, direction):
+        if not board[self.pos[1]+direction][self.pos[0]].is_empty():
+            return
+        if not rek:
+            if self.check_for_check(deepcopy(b_copy), enemy, piece_dict, (self.pos[1]+direction,self.pos[0])):
+                board[self.pos[1]+direction][self.pos[0]].attacked()
+        else:
+            board[self.pos[1]+direction][self.pos[0]].attacked()
+
+    def go_two(self, board, enemy, piece_dict, rek, b_copy, direction):
+        if self.moved:
+            return
+        if not board[self.pos[1]+direction][self.pos[0]].can_be_attacked():
+            return
+        if not board[self.pos[1]+direction*2][self.pos[0]].is_empty():
+            return
+        if not rek:
+            if self.check_for_check(deepcopy(b_copy), enemy, piece_dict, (self.pos[1]+direction*2, self.pos[0])):
+                board[self.pos[1]+direction*2][self.pos[0]].attacked()
+        else:
+            board[self.pos[1]+direction*2][self.pos[0]].attacked()
+
+    def attack_right(self, board, enemy, piece_dict, rek, b_copy, direction):
+        if (self.pos[0] + 1) > 7:
+            return
+        if board[self.pos[1]+direction][self.pos[0]+1].is_empty() or board[self.pos[1]+direction][self.pos[0]+1].get_type("color") == self.get_type("color"):
+            return
+        if not rek:
+            if self.check_for_check(deepcopy(b_copy), enemy, piece_dict, (self.pos[1]+direction, self.pos[0]+1)):
+                board[self.pos[1]+direction][self.pos[0]+1].attacked()
+        else:
+            board[self.pos[1]+direction][self.pos[0]+1].attacked()
+
+    def attack_left(self, board, enemy, piece_dict, rek, b_copy, direction):
+        if (self.pos[0] - 1) < 0:
+            return
+        if board[self.pos[1]+direction][self.pos[0]-1].is_empty() or board[self.pos[1]+direction][self.pos[0]-1].get_type("color") == self.get_type("color"):
+            return
+        if not rek:
+            if self.check_for_check(deepcopy(b_copy), enemy, piece_dict, (self.pos[1]+direction, self.pos[0]-1)):
+                board[self.pos[1]+direction][self.pos[0]-1].attacked()
+        else:
+            board[self.pos[1]+direction][self.pos[0]-1].attacked()
 
     def en(self):
         self.en_pass = True
