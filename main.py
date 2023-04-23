@@ -120,6 +120,7 @@ class Game:
     def move_pieces(self, start_y, start_x, dest_y, dest_x):
         if not self.logic_board[dest_y][dest_x].is_empty():
             pygame.sprite.Sprite.kill(self.graphics_piece_board[dest_y][dest_x])
+            self.color_pieces[self.enemy].remove(self.logic_board[dest_y][dest_x])
         self.graphics_piece_board[dest_y][dest_x] = self.graphics_piece_board[start_y][start_x]
         self.graphics_piece_board[dest_y][dest_x].update_pos((dest_x, dest_y))
         self.graphics_piece_board[start_y][start_x] = 0
