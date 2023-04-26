@@ -1,3 +1,4 @@
+import pygame
 BOARD_TILES = [[0,1,0,1,0,1,0,1],
                [1,0,1,0,1,0,1,0],
                [0,1,0,1,0,1,0,1],
@@ -29,3 +30,8 @@ HORSE_DIR = [[1, 2], [-1, 2], [1, -2], [-1, -2], [2, 1], [-2, 1], [2, -1], [-2, 
 NO_DIR = []
 
 PROMO = ["Q", "B", "H", "R"]
+def get_cords():
+        x,y = pygame.mouse.get_pos()
+        x = (x-x%TILE_SIZE)//TILE_SIZE
+        y = (y-y%TILE_SIZE)//TILE_SIZE
+        return x,y

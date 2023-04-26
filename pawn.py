@@ -11,7 +11,7 @@ class Pawn(Piece):
     def all_available(self, board, enemy, piece_dict, rek):
         b_copy = deepcopy(board)
 
-        if self.get_type("color") == "W":
+        if self.color() == "W":
             direction = -1
         else:
             direction = 1
@@ -42,14 +42,14 @@ class Pawn(Piece):
     def attack_right(self, board, enemy, piece_dict, rek, b_copy, direction):
         if (self.pos[0] + 1) > 7:
             return
-        if board[self.pos[1]+direction][self.pos[0]+1].is_empty() or board[self.pos[1]+direction][self.pos[0]+1].get_type("color") == self.get_type("color"):
+        if board[self.pos[1]+direction][self.pos[0]+1].is_empty() or board[self.pos[1]+direction][self.pos[0]+1].color() == self.color():
             return
         self.mark_attack(board, enemy, piece_dict, rek, b_copy, direction, 1)
 
     def attack_left(self, board, enemy, piece_dict, rek, b_copy, direction):
         if (self.pos[0] - 1) < 0:
             return
-        if board[self.pos[1]+direction][self.pos[0]-1].is_empty() or board[self.pos[1]+direction][self.pos[0]-1].get_type("color") == self.get_type("color"):
+        if board[self.pos[1]+direction][self.pos[0]-1].is_empty() or board[self.pos[1]+direction][self.pos[0]-1].color() == self.color():
             return
         self.mark_attack(board, enemy, piece_dict, rek, b_copy, direction, -1)
 
@@ -66,7 +66,7 @@ class Pawn(Piece):
                 continue
             if board[self.pos[1]][self.pos[0]+offset].is_empty():
                 continue
-            if board[self.pos[1]][self.pos[0]+offset].get_type("full") != f"{enemy}P":
+            if board[self.pos[1]][self.pos[0]+offset].full_type() != f"{enemy}P":
                 continue
             if board[self.pos[1]][self.pos[0]+offset].en_pass:
                 self.mark_attack(board, enemy, piece_dict, rek, b_copy, direction, offset)

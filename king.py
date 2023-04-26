@@ -1,9 +1,9 @@
 from settings import QUEEN_DIR
-from piece_class import KingAndHorse
+from single_tile_attack_piece import Single_Tile_Attack_Class
 from copy import copy, deepcopy
 from piece_class import Piece
 
-class King(KingAndHorse):
+class King(Single_Tile_Attack_Class):
     def __init__(self, piece_type, pos):
         super().__init__(piece_type, pos)
         self.directions = QUEEN_DIR
@@ -27,7 +27,7 @@ class King(KingAndHorse):
         x, y = self.pos
         if board[y][x+3].did_it_move():
             return
-        if board[y][x+3].get_type("full") != f"{self.get_type('color')}R":
+        if board[y][x+3].full_type() != f"{self.color()}R":
             return
         if not board[y][x+1].is_empty() or not board[y][x+2].is_empty():
             return
@@ -40,7 +40,7 @@ class King(KingAndHorse):
 
     def left_roszada(self, board, enemy, piece_dict, rek):
         x, y = self.pos
-        if board[y][x-4].get_type("full") != f"{self.get_type('color')}R":
+        if board[y][x-4].full_type() != f"{self.color()}R":
             return
         if board[y][x-4].did_it_move():
             return
