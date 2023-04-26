@@ -70,6 +70,8 @@ class Piece:
         board[self.pos[1]][self.pos[0]] = Piece("00", (self.pos))
         king_y, king_x = piece_dict[f"{self.get_type('color')}K"]
         for piece in piece_dict[enemy]:
+            if (dest[1], dest[0]) == piece.pos:
+                continue
             piece.all_available(board, enemy, piece_dict, True)
             if board[king_y][king_x].can_be_attacked():
                 return False
