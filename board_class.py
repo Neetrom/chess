@@ -40,3 +40,13 @@ class Board:
     
     def get_moves(self):
         return self.move_board
+
+    def wrong_figure_picked(self, dest_x, dest_y):
+        attacked = self.move_board[dest_y][dest_x]
+        if not attacked.can_be_attacked():
+            return False
+        if (dest_x == self.x and dest_y == self.y):
+            return False
+        if attacked.color() == self.move_board[self.y][self.x].color():
+            return False
+        return True

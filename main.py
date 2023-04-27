@@ -37,15 +37,6 @@ class Game:
 
         self.logic_board.mark_piece_movement(dest_x, dest_y)
 
-    def wrong_figure_picked(self, dest_x, dest_y, attacked):
-        if not attacked.can_be_attacked():
-            return False
-        if (dest_x == self.x and dest_y == self.y):
-            return False
-        if attacked.color() == self.move_board[self.y][self.x].color():
-            return False
-        return True
-
     def king_logic(self, x, y):
         if self.logic_board.get_figure_of_piece(x, y) != "K":
             return
@@ -83,9 +74,8 @@ class Game:
     def check_valid_move(self):
         dest_x, dest_y = get_cords()
         self.move_board = self.graphic_board.get_moves()
-        attacked = self.move_board[dest_y][dest_x]
 
-        if not self.wrong_figure_picked(dest_x, dest_y, attacked):
+        if not self.graphic_board.wrong_figure_picked(dest_x, dest_y):
             return
         
         self.logic_board.turn_off_en_pass()

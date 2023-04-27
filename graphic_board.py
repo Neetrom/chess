@@ -64,7 +64,6 @@ class Graphic_Board(Board):
     
     def get_x_y(self):
         return self.x, self.y
-    
 
     def draw_trans(self, logic_board, screen):
         if logic_board[self.y][self.x].is_empty():
