@@ -30,6 +30,7 @@ HORSE_DIR = [[1, 2], [-1, 2], [1, -2], [-1, -2], [2, 1], [-2, 1], [2, -1], [-2, 
 NO_DIR = []
 
 PROMO = ["Q", "B", "H", "R"]
+
 def get_cords():
         x,y = pygame.mouse.get_pos()
         x = (x-x%TILE_SIZE)//TILE_SIZE

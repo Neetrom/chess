@@ -4,18 +4,16 @@ from graphic_piece import Graphic_piece
 from copy import deepcopy
 from board_class import Board
 
-class Graphic_Board(Board):
-    def __init__(self):
+class Graphic_Interface():
+    def __init__(self, start_piece_positions):
         pygame.init()
-        self.board_tiles = pygame.surface.Surface(BOARD_SIZE)
+        self.background = pygame.surface.Surface(BOARD_SIZE)
         self.piece_group = pygame.sprite.Group()
-        super().__init__()
         self.generate_board()
-        self.move_board = []
+        self.update_board(start_piece_positions)
         self.copy = 0
         self.x = 0
         self.y = 0
-
 
     def generate_board(self):
         for row_index, row in enumerate(BOARD_TILES):
@@ -27,23 +25,27 @@ class Graphic_Board(Board):
                 else:
                     tile.fill((118,150,86))
                 tile_rect = tile.get_rect(topleft=(TILE_SIZE*row_index, TILE_SIZE*col_index))
-                self.board_tiles.blit(tile, tile_rect)
+                self.background.blit(tile, tile_rect)
 
+    def update_board(self, board):
+        self.clear_board()
+        for row_index, row in enumerate(board):
+            for col_index, val in enumerate(row):
+                self.add_piece(val.full_type(), col_index, row_index)
 
-    def kill_piece(self, x, y):
-        pygame.sprite.Sprite.kill(self.board[y][x])
-        self.piece_group.remove(self.board[y][x])
-        super().kill_piece(x, y)
+    def clear_board(self):
+        for sprite in self.piece_group:
+            sprite.kill()
+            self.piece_group.remove(sprite)
 
     def add_piece(self, type, x, y):
         if type == "00":
             return
         graphic_piece = Graphic_piece(f"{type}", (x, y))
-        self.board[y][x] = graphic_piece
         self.piece_group.add(graphic_piece)
 
     def get_background(self):
-        return self.board_tiles
+        return self.background
     
     def get_pieces(self):
         self.piece_group.update()
@@ -60,12 +62,16 @@ class Graphic_Board(Board):
             if logic_board[self.y][self.x].color() != turn:
                 return
             self.move_board = logic_board[self.y][self.x].all_available(deepcopy(logic_board), enemy, color_pieces, False)
-        self.draw_trans(logic_board, screen)
+        self.draw_transp(logic_board, screen)
     
     def get_x_y(self):
         return self.x, self.y
 
-    def draw_trans(self, logic_board, screen):
+    def draw_board(self, screen):
+        screen.blit(self.get_background(), (0,0))
+        self.get_pieces().draw(screen)
+
+    def draw_transp(self, logic_board, screen):
         if logic_board[self.y][self.x].is_empty():
             return
         for row_index, row in enumerate(self.move_board):

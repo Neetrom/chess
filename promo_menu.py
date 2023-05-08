@@ -45,7 +45,7 @@ class Promo_Menu:
             return self.black_menu_reck
         
     
-    def pick_promo(self, dest_x, dest_y, logic_board, graphic_board, team, enemy):
+    def pick_promo(self, dest_x, dest_y, logic_board, team):
         if not pygame.mouse.get_pressed()[0]:
             return
         mouse_pos = pygame.mouse.get_pos()
@@ -54,20 +54,17 @@ class Promo_Menu:
             piece_type = self.funny_dict[x]
             
             logic_board.kill_piece(dest_x, dest_y, team)
-            graphic_board.kill_piece(dest_x, dest_y)
-
-            graphic_board.add_piece(f"{team}{piece_type}", dest_x, dest_y)
             logic_board.add_piece(f"{team}{piece_type}", dest_x, dest_y)
 
             self.close()
 
-    def handle_promo(self, dest_x, dest_y, logic_board, graphic_board, team, enemy, screen):
+    def handle_promo(self, dest_x, dest_y, logic_board, team, screen):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
         screen.blit(self.get_menu(team), self.get_menu_rect(team))
-        self.pick_promo(dest_x, dest_y, logic_board, graphic_board, team, enemy)
+        self.pick_promo(dest_x, dest_y, logic_board, team)
         pygame.display.update()
 
     def is_on(self):
@@ -79,9 +76,7 @@ class Promo_Menu:
     def close(self):
         self.open = False
 
-    def open_promo(self, x, y, logic_board, graphic_board, turn, enemy, screen):
-        if y != 0 and y != 7:
-            return
+    def open_promo(self, x, y, logic_board, turn, screen):
         self.open_menu()
         while self.is_on():
-            self.handle_promo(x, y, logic_board, graphic_board, turn, enemy, screen)
+            self.handle_promo(x, y, logic_board, turn, screen)
