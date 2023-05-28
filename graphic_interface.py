@@ -2,7 +2,6 @@ from settings import TILE_SIZE, BOARD_SIZE, BOARD_TILES, PIECES, get_cords
 import pygame
 from graphic_piece import Graphic_piece
 from copy import deepcopy
-from board_class import Board
 
 class Graphic_Interface():
     def __init__(self, start_piece_positions):
@@ -12,6 +11,7 @@ class Graphic_Interface():
         self.generate_board()
         self.update_board(start_piece_positions)
         self.copy = 0
+        self.holding_a_piece = False
         self.x = 0
         self.y = 0
 
@@ -39,7 +39,7 @@ class Graphic_Interface():
             self.piece_group.remove(sprite)
 
     def add_piece(self, type, x, y):
-        if type == "00":
+        if type == "00": #tile empty
             return
         graphic_piece = Graphic_piece(f"{type}", (x, y))
         self.piece_group.add(graphic_piece)
@@ -52,7 +52,7 @@ class Graphic_Interface():
         return self.piece_group
     
     def mouse_move(self, logic_board, enemy, color_pieces, screen, turn):
-        if self.copy != 0:
+        if self.holding_a_piece:
             copy_rect = self.copy.get_rect(center = pygame.mouse.get_pos())
             screen.blit(self.copy, copy_rect)
         else:
@@ -82,3 +82,13 @@ class Graphic_Interface():
         pygame.Surface.set_alpha(self.copy, 100)
         copy_rect = self.copy.get_rect(center = pygame.mouse.get_pos())
         screen.blit(self.copy, copy_rect)
+        self.holding_a_piece = True
+
+    def figure_picked(self):
+        if self.holding_a_piece:
+            return True
+        return False
+
+    def let_go_of_a_piece(self):
+        self.copy = 0
+        self.holding_a_piece = False
