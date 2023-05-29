@@ -29,8 +29,10 @@ class Game:
 
     def check_valid_move(self):
         dest_x, dest_y = get_cords()
+        target = self.logic_board.get_cells()[dest_y][dest_x]
+        piece_picked = self.logic_board.get_cells()[self.y][self.x]
         
-        if self.logic_board.make_a_move_if_valid(self.x, self.y, dest_x, dest_y, self.turn, self.enemy):
+        if self.logic_board.make_a_move_if_valid(piece_picked, target, self.turn, self.enemy):
             return
 
         self.change_turn()
@@ -51,7 +53,7 @@ class Game:
                 pygame.quit()
                 sys.exit()
         if pygame.mouse.get_pressed()[0]:
-            self.graphic_interface.mouse_move(deepcopy(self.logic_board.get_board()), self.enemy, self.logic_board.get_color_pieces(), self.screen, self.turn)
+            self.graphic_interface.mouse_move(self.logic_board, self.enemy, self.screen, self.turn)
         else:
             if self.graphic_interface.figure_picked():
                 self.x, self.y = self.graphic_interface.get_x_y()

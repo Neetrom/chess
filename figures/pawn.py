@@ -97,5 +97,5 @@ class Pawn(Piece):
     def en(self):
         self.en_pass = True
     
-    def ne(self):
+    def cant_en_passa(self):
         self.en_pass = False

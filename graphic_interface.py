@@ -51,18 +51,23 @@ class Graphic_Interface():
         self.piece_group.update()
         return self.piece_group
     
-    def mouse_move(self, logic_board, enemy, color_pieces, screen, turn):
+    def mouse_move(self, logic_board, enemy, screen, turn):
+        color_pieces = logic_board.get_color_pieces()
+        board = logic_board.get_board()
         if self.holding_a_piece:
             copy_rect = self.copy.get_rect(center = pygame.mouse.get_pos())
             screen.blit(self.copy, copy_rect)
         else:
             self.x, self.y = get_cords()
-            if logic_board[self.y][self.x].is_empty():
+            if self.tile_at_cords(self.x, self.y, board).is_empty():
                 return
-            if logic_board[self.y][self.x].color() != turn:
+            if self.tile_at_cords(self.x, self.y, board).color() != turn:
                 return
-            self.move_board = logic_board[self.y][self.x].all_available(deepcopy(logic_board), enemy, color_pieces, False)
-        self.draw_transp(logic_board, screen)
+            self.move_board = self.tile_at_cords(self.x, self.y, board).all_available(deepcopy(board), enemy, color_pieces, False)
+        self.draw_transp(board, screen)
+    
+    def tile_at_cords(self, x, y, board):
+        return board[y][x]
     
     def get_x_y(self):
         return self.x, self.y
@@ -71,14 +76,14 @@ class Graphic_Interface():
         screen.blit(self.get_background(), (0,0))
         self.get_pieces().draw(screen)
 
-    def draw_transp(self, logic_board, screen):
-        if logic_board[self.y][self.x].is_empty():
+    def draw_transp(self, board, screen):
+        if self.tile_at_cords(self.x, self.y, board).is_empty():
             return
         for row_index, row in enumerate(self.move_board):
             for col_index, val in enumerate(row):
                 if val.can_be_attacked():
                     pygame.draw.circle(screen, (130, 237, 92),(col_index*TILE_SIZE+50, row_index*TILE_SIZE+50), 20)
-        self.copy = pygame.image.load(f"graphics/{logic_board[self.y][self.x].full_type()}.png").convert_alpha()
+        self.copy = pygame.image.load(f"graphics/{self.tile_at_cords(self.x, self.y, board).full_type()}.png").convert_alpha()
         pygame.Surface.set_alpha(self.copy, 100)
         copy_rect = self.copy.get_rect(center = pygame.mouse.get_pos())
         screen.blit(self.copy, copy_rect)

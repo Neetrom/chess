@@ -26,78 +26,90 @@ class Logic_Board():
                         [0, 0, 0, 0, 0, 0, 0, 0]]
         self.import_pieces()
         self.move_board = []
-        self.prev = 0
+        self.previous_piece = 0
 
     def import_pieces(self):
         for row_index, row in enumerate(PIECES):
             for col_index, val in enumerate(row):
                 self.add_piece(val, col_index, row_index)
 
+    def get_cells(self):
+        return self.cell_board
 
-    def make_a_move_if_valid(self, x, y, dest_x, dest_y, turn, enemy):
-        self.generate_moves(x, y, enemy)
+    def make_a_move_if_valid(self, starting_tile, target, turn, enemy):
+        self.generate_moves(starting_tile, enemy)
 
-        if not self.wrong_figure_picked(x, y, dest_x, dest_y):
+        if not self.wrong_figure_picked(starting_tile, target):
             return True
         
-        if not self.is_tile_empty(dest_x, dest_y):
-            self.kill_piece(dest_x, dest_y, enemy)
+        if not self.is_tile_empty(target):
+            self.kill_piece(target, enemy)
 
-        self.move_piece(x, y, dest_x, dest_y)
+        self.move_piece(starting_tile, target)
 
-        self.king_logic(x, dest_x, dest_y, turn)
+        self.king_logic(starting_tile, target, turn)
 
-        self.pawn_logic(x, y, dest_x, dest_y, enemy)
+        self.pawn_logic(starting_tile, target, enemy)
 
         return False
 
-    def move_piece(self, start_x, start_y, dest_x, dest_y):
-        self.board[dest_y][dest_x] = self.board[start_y][start_x]
-        self.board[dest_y][dest_x].update_pos((dest_x, dest_y))
-        self.empty_space(start_x, start_y)
+    def move_piece(self, starting_tile, target):
+        self.board[target.y][target.x] = self.board[starting_tile.y][starting_tile.x]
+        self.board[target.y][target.x].update_pos((target.x, target.y))
+        self.empty_space(starting_tile)
 
-        self.mark_piece_movement(dest_x, dest_y)
+        self.mark_piece_movement(target)
 
-    def king_logic(self, x, dest_x, dest_y, turn):
-        if self.get_figure_of_piece(dest_x, dest_y) != "K":
+    def king_logic(self,starting_tile, target, turn):
+        if self.get_figure_of_piece(target) != "K":
             return
-        self.update_king_pos(dest_x, dest_y, turn)
-        self.roszada(x, dest_x, dest_y)
+        self.update_king_pos(target, turn)
+        self.roszada(starting_tile, target)
     
-    def roszada(self, x, dest_x, y):
-        temp = abs(dest_x - x)
+    def roszada(self, starting_tile, target):
+        temp = abs(target.x - starting_tile.x)
         if temp < 2:
             return
-        if dest_x == 2:
-           self.move_piece(dest_x-2, y, dest_x+1, y)
+        if target.x == 2:
+           rook_start = self.cell_at_cords(target.x-2, target.y)
+           rook_target = self.cell_at_cords(target.x+1, target.y)
         else:
-            self.move_piece(dest_x+1, y, dest_x-1, y)
+            rook_start = self.cell_at_cords(target.x+1, target.y)
+            rook_target = self.cell_at_cords(target.x-1, target.y)
+        self.move_piece(rook_start, rook_target)
 
-    def pawn_logic(self, start_x, start_y, x, y, enemy):
+    def pawn_logic(self, starting_tile, target, enemy):
         self.turn_off_en_pass_for_the_last_piece()
-        if self.get_figure_of_piece(x, y) != "P":
+        if self.get_figure_of_piece(target) != "P":
             return
-        if abs(y-start_y) == 2:
-            self.mark_en_pass(x, y)
+        if abs(target.y-starting_tile.y) == 2:
+            self.mark_en_pass(target)
         
-        self.pass_enn(start_x, start_y, x, y, enemy)
+        self.pass_enn(starting_tile, target, enemy)
             
-    def pass_enn(self, start_x, start_y, x, y, enemy):
-        if start_x == x:
+    def pass_enn(self, starting_tile, target, enemy):
+        if starting_tile.x == target.x:
             return
-        if not self.move_board[y][x].is_empty():
+        if not self.piece_from_target(target).is_empty():
             return
-        self.kill_piece(x, start_y, enemy)
+        en_pass_target = self.cell_at_cords(target.x, starting_tile.y)
+        self.kill_piece(en_pass_target, enemy)
 
-    def wrong_figure_picked(self, x, y, dest_x, dest_y):
-        attacked = self.move_board[dest_y][dest_x]
+    def wrong_figure_picked(self, starting_tile, target):
+        attacked = self.move_board[target.y][target.x]
         if not attacked.can_be_attacked():
             return False
-        if (dest_x == x and dest_y == y):
+        if (target.x == starting_tile.x and target.y == starting_tile.y):
             return False
-        if attacked.color() == self.move_board[y][x].color():
+        if attacked.color() == self.piece_from_target(starting_tile).color():
             return False
         return True
+
+    def piece_from_target(self, target):
+        return self.board[target.y][target.x]
+
+    def cell_at_cords(self, x, y):
+        return self.get_cells()[y][x]
 
     def add_piece(self, type, x, y):
         new_cell = Cell(x, y)
@@ -112,47 +124,47 @@ class Logic_Board():
         if type[1] == "K":
             self.color_pieces[type] = (y, x)
 
-    def kill_piece(self, x, y, enemy):
-        self.color_pieces[enemy].remove(self.board[y][x])
-        self.cell_board[y][x].remove_piece()
-        self.board[y][x] = Piece("00", (x, y))
+    def kill_piece(self, target, enemy):
+        self.color_pieces[enemy].remove(self.board[target.y][target.x])
+        self.cell_board[target.y][target.x].remove_piece()
+        self.board[target.y][target.x] = Piece("00", (target.x, target.y))
     
-    def empty_space(self, x, y):
-        self.board[y][x] = Piece("00", (x, y))
-        self.cell_board[y][x].remove_piece()
+    def empty_space(self, target):
+        self.board[target.y][target.x] = Piece("00", (target.x, target.y))
+        self.cell_board[target.y][target.x].remove_piece()
         
-    def mark_piece_movement(self, x, y):
-        self.board[y][x].did_move()
+    def mark_piece_movement(self, target):
+        self.board[target.y][target.x].did_move()
 
-    def update_king_pos(self, x, y, turn):
-        self.color_pieces[f"{turn}K"] = (y, x)
+    def update_king_pos(self, target, turn):
+        self.color_pieces[f"{turn}K"] = (target.y, target.x)
 
-    def get_type_of_piece(self, x, y):
-        return self.board[y][x].full_type()
+    def get_type_of_piece(self, target):
+        return self.board[target.y][target.x].full_type()
     
-    def get_color_of_piece(self, x, y):
-        return self.board[y][x].color()
+    def get_color_of_piece(self, target):
+        return self.board[target.y][target.x].color()
     
-    def get_figure_of_piece(self, x, y):
-        return self.board[y][x].figure()
+    def get_figure_of_piece(self, target):
+        return self.board[target.y][target.x].figure()
     
-    def generate_moves(self, x, y, enemy):
-        self.move_board = self.board[y][x].all_available(deepcopy(self.board), enemy, self.color_pieces, False)
+    def generate_moves(self, target, enemy):
+        self.move_board = self.board[target.y][target.x].all_available(deepcopy(self.board), enemy, self.color_pieces, False)
     
-    def mark_en_pass(self, x, y):
-        self.board[y][x].en()
-        self.prev = self.board[y][x]
+    def mark_en_pass(self, target):
+        self.board[target.y][target.x].en()
+        self.previous_piece = self.board[target.y][target.x]
     
     def turn_off_en_pass_for_the_last_piece(self):
-        if self.prev != 0:
-            self.prev.ne()
-            self.prev = 0
+        if self.previous_piece != 0:
+            self.previous_piece.cant_en_passa()
+            self.previous_piece = 0
     
     def get_color_pieces(self):
         return self.color_pieces
 
-    def is_tile_empty(self, x, y):
-        return self.board[y][x].is_empty()
+    def is_tile_empty(self, target):
+        return self.board[target.y][target.x].is_empty()
     
     def get_board(self):
         return self.board
