@@ -64,7 +64,7 @@ class Pawn(Piece):
     def mark_attack(self, board, enemy, piece_dict, rek, b_copy, direction, offset):
         tile_attacked = board[self.pos[1]+direction][self.pos[0]+offset]
         if not rek:
-            if self.check_for_check(deepcopy(b_copy), enemy, piece_dict, (self.pos[1] + direction, self.pos[0]+offset)):
+            if not self.illegal_move(deepcopy(b_copy), enemy, piece_dict, (self.pos[1] + direction, self.pos[0]+offset)):
                 tile_attacked.attacked()
         else:
             tile_attacked.attacked()
@@ -86,7 +86,7 @@ class Pawn(Piece):
             return True
         if (self.pos[0] + offset) < 0:
             return True
-
+        return False
 
     def out_of_bounds_after_a_move(self):
         if (self.pos[0] + 1) > 7:

@@ -20,7 +20,7 @@ class Single_Tile_Attack_Class(Piece):
             if attacking.color() == self.color():
                 continue
             if not rek:
-                if not attacking.can_be_attacked() and self.check_for_check(deepcopy(b_copy), enemy, piece_dict, check):
+                if not self.illegal_move(deepcopy(b_copy), enemy, piece_dict, check):
                     attacking.attacked()
             else:
                 attacking.attacked()

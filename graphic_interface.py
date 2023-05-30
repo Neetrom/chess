@@ -64,7 +64,7 @@ class Graphic_Interface():
             if self.tile_at_cords(self.x, self.y, board).color() != turn:
                 return
             self.move_board = self.tile_at_cords(self.x, self.y, board).all_available(deepcopy(board), enemy, color_pieces, False)
-        self.draw_transp(board, screen)
+        self.draw_transparent_copy_of_a_piece(board, screen)
     
     def tile_at_cords(self, x, y, board):
         return board[y][x]
@@ -76,7 +76,7 @@ class Graphic_Interface():
         screen.blit(self.get_background(), (0,0))
         self.get_pieces().draw(screen)
 
-    def draw_transp(self, board, screen):
+    def draw_transparent_copy_of_a_piece(self, board, screen):
         if self.tile_at_cords(self.x, self.y, board).is_empty():
             return
         for row_index, row in enumerate(self.move_board):

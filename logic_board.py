@@ -122,7 +122,7 @@ class Logic_Board():
         self.board[y][x] = piece
         self.cell_board[y][x] = new_cell
         if type[1] == "K":
-            self.color_pieces[type] = (y, x)
+            self.color_pieces[type] = new_cell
 
     def kill_piece(self, target, enemy):
         self.color_pieces[enemy].remove(self.board[target.y][target.x])
@@ -134,26 +134,26 @@ class Logic_Board():
         self.cell_board[target.y][target.x].remove_piece()
         
     def mark_piece_movement(self, target):
-        self.board[target.y][target.x].did_move()
+        self.piece_from_target(target).did_move()
 
     def update_king_pos(self, target, turn):
-        self.color_pieces[f"{turn}K"] = (target.y, target.x)
+        self.color_pieces[f"{turn}K"] = target
 
     def get_type_of_piece(self, target):
-        return self.board[target.y][target.x].full_type()
+        return self.piece_from_target(target).full_type()
     
     def get_color_of_piece(self, target):
-        return self.board[target.y][target.x].color()
+        return self.piece_from_target(target).color()
     
     def get_figure_of_piece(self, target):
-        return self.board[target.y][target.x].figure()
+        return self.piece_from_target(target).figure()
     
     def generate_moves(self, target, enemy):
-        self.move_board = self.board[target.y][target.x].all_available(deepcopy(self.board), enemy, self.color_pieces, False)
+        self.move_board = self.piece_from_target(target).all_available(deepcopy(self.get_board()), enemy, self.color_pieces, False)
     
     def mark_en_pass(self, target):
-        self.board[target.y][target.x].en()
-        self.previous_piece = self.board[target.y][target.x]
+        self.piece_from_target(target).en()
+        self.previous_piece = self.piece_from_target(target)
     
     def turn_off_en_pass_for_the_last_piece(self):
         if self.previous_piece != 0:
@@ -164,7 +164,7 @@ class Logic_Board():
         return self.color_pieces
 
     def is_tile_empty(self, target):
-        return self.board[target.y][target.x].is_empty()
+        return self.piece_from_target(target).is_empty()
     
     def get_board(self):
         return self.board

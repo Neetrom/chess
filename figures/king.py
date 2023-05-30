@@ -17,7 +17,7 @@ class King(Single_Tile_Attack_Class):
     def roszada(self, board, enemy, piece_dict, rek):
         if self.did_it_move():
             return
-        if not self.check_for_check(deepcopy(board), enemy, piece_dict, (self.pos[1], self.pos[0])):
+        if self.illegal_move(deepcopy(board), enemy, piece_dict, (self.pos[1], self.pos[0])):
             return
         
         self.right_roszada(board, enemy, piece_dict, rek)
@@ -32,9 +32,9 @@ class King(Single_Tile_Attack_Class):
         if not board[y][x+1].is_empty() or not board[y][x+2].is_empty():
             return
         if not rek:
-            if not self.check_for_check(deepcopy(board), enemy, piece_dict, (y, x+1)):
+            if self.illegal_move(deepcopy(board), enemy, piece_dict, (y, x+1)):
                 return
-            if not self.check_for_check(deepcopy(board), enemy, piece_dict, (y, x+2)):
+            if self.illegal_move(deepcopy(board), enemy, piece_dict, (y, x+2)):
                 return
         board[y][x+2].attacked()
 
@@ -47,19 +47,17 @@ class King(Single_Tile_Attack_Class):
         if not board[y][x-3].is_empty() or not board[y][x-2].is_empty() or not board[y][x-1].is_empty():
             return
         if not rek:
-            if not self.check_for_check(deepcopy(board), enemy, piece_dict, (y, x-1)):
+            if self.illegal_move(deepcopy(board), enemy, piece_dict, (y, x-1)):
                 return
-            if not self.check_for_check(deepcopy(board), enemy, piece_dict, (y, x-2)):
+            if self.illegal_move(deepcopy(board), enemy, piece_dict, (y, x-2)):
                 return
         board[y][x-2].attacked()
 
-
     
-    def check_for_check(self, board, enemy, piece_dict, dest):
-        board[dest[0]][dest[1]] = copy(board[self.pos[1]][self.pos[0]])
-        board[self.pos[1]][self.pos[0]] = Piece("00", (self.pos))
+    def illegal_move(self, board, enemy, piece_dict, dest):
+        board = self.board_after_temporary_move_of_this_piece(board, dest)
         for piece in piece_dict[enemy]:
             piece.all_available(board, enemy, piece_dict, True)
             if board[dest[0]][dest[1]].can_be_attacked():
-                return False
-        return True
+                return True
+        return False
