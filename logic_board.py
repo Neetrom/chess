@@ -1,7 +1,7 @@
-from settings import TILE_SIZE, BOARD_SIZE, BOARD_TILES, PIECES, get_cords
+from settings import  PIECES
 from copy import deepcopy
 from figures.import_pieces import IMPORT_PIECES
-from piece_class import Piece
+from figures.piece import Piece
 from cell import Cell
 
 
