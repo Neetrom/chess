@@ -1,11 +1,10 @@
-from piece_class import Piece
-from settings import NO_DIR
+from figures.piece import Piece
 from copy import deepcopy, copy
 
 class Single_Tile_Attack_Class(Piece):
     def __init__(self, piece_type, pos):
         super().__init__(piece_type, pos)
-        self.directions = NO_DIR
+        self.directions = []
 
     def all_available(self, board, enemy, piece_dict, rek):
         if not rek:

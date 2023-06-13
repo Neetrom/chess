@@ -1,6 +1,5 @@
-import pygame
 from copy import deepcopy, copy
-from piece_class import Piece
+from figures.piece import Piece
 
 class Pawn(Piece):
     def __init__(self, piece_type, pos):

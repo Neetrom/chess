@@ -1,9 +1,8 @@
 import pygame, sys
 from settings import *
-from copy import deepcopy, copy
-from graphic_interface import Graphic_Interface
+from graphics.graphic_interface import Graphic_Interface
 from logic_board import Logic_Board
-from promo_menu import Promo_Menu
+from graphics.promo_menu import Promo_Menu
 
 class Game:
     def __init__(self):

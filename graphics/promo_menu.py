@@ -17,7 +17,7 @@ class Promo_Menu:
         
         i = 0
         for piece in PROMO:
-            image = pygame.image.load(f"graphics/{team}{piece}.png")
+            image = pygame.image.load(f"graphics/graphic_pieces/{team}{piece}.png")
             image_rect = image.get_rect(topleft=(i, 0))
             promo_menu.blit(image, image_rect)
             promo_menu.blit(separator, (i,0))

@@ -1,6 +1,6 @@
 from settings import TILE_SIZE, BOARD_SIZE, BOARD_TILES, PIECES, get_cords
 import pygame
-from graphic_piece import Graphic_piece
+from graphics.graphic_piece import Graphic_piece
 from copy import deepcopy
 
 class Graphic_Interface():
@@ -83,7 +83,7 @@ class Graphic_Interface():
             for col_index, val in enumerate(row):
                 if val.can_be_attacked():
                     pygame.draw.circle(screen, (130, 237, 92),(col_index*TILE_SIZE+50, row_index*TILE_SIZE+50), 20)
-        self.copy = pygame.image.load(f"graphics/{self.tile_at_cords(self.x, self.y, board).full_type()}.png").convert_alpha()
+        self.copy = pygame.image.load(f"graphics/graphic_pieces/{self.tile_at_cords(self.x, self.y, board).full_type()}.png").convert_alpha()
         pygame.Surface.set_alpha(self.copy, 100)
         copy_rect = self.copy.get_rect(center = pygame.mouse.get_pos())
         screen.blit(self.copy, copy_rect)

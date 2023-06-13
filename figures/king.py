@@ -1,12 +1,10 @@
-from settings import QUEEN_DIR
-from single_tile_attack_piece import Single_Tile_Attack_Class
+from figures.single_tile_attack_piece import Single_Tile_Attack_Class
 from copy import copy, deepcopy
-from piece_class import Piece
 
 class King(Single_Tile_Attack_Class):
     def __init__(self, piece_type, pos):
         super().__init__(piece_type, pos)
-        self.directions = QUEEN_DIR
+        self.directions = [[1, 1], [-1, 1], [-1, -1], [1, -1], [1, 0], [-1, 0], [0, 1], [0, -1]]
         self.moved = False
 
     def all_available(self, board, enemy, piece_dict, rek):

@@ -1,4 +1,3 @@
-from settings import TILE_SIZE, NO_DIR
 from copy import deepcopy, copy
 
 class Piece:
@@ -9,7 +8,7 @@ class Piece:
         self.points = 0
         self.valid_attack = False
 
-        self.directions = NO_DIR
+        self.directions = []
 
         self.moved = False
 
