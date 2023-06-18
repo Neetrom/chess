@@ -64,9 +64,9 @@ class Logic_Board():
         if self.get_figure_of_piece(target) != "K":
             return
         self.update_king_pos(target, turn)
-        self.roszada(starting_tile, target)
+        self.castle(starting_tile, target)
     
-    def roszada(self, starting_tile, target):
+    def castle(self, starting_tile, target):
         temp = abs(target.x - starting_tile.x)
         if temp < 2:
             return
@@ -82,6 +82,10 @@ class Logic_Board():
         self.turn_off_en_pass_for_the_last_piece()
         if self.get_figure_of_piece(target) != "P":
             return
+        if target.y == 7 or target.y == 0:
+            color = self.get_color_of_piece(target)
+            self.kill_piece(target, color)
+            self.add_piece(f"{color}Q", target.x, target.y)
         if abs(target.y-starting_tile.y) == 2:
             self.mark_en_pass(target)
         
@@ -150,6 +154,7 @@ class Logic_Board():
     
     def generate_moves(self, target, enemy):
         self.move_board = self.piece_from_target(target).all_available(deepcopy(self.get_board()), enemy, self.color_pieces, False)
+        return self.move_board
     
     def mark_en_pass(self, target):
         self.piece_from_target(target).en()
