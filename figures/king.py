@@ -18,6 +18,7 @@ class King(Single_Tile_Attack_Class):
         if self.illegal_move(deepcopy(board), enemy, piece_dict, (self.pos[1], self.pos[0])):
             return
         
+        self.right_castle(board, enemy, piece_dict, rek)
         self.left_castle(board, enemy, piece_dict, rek)
         
     def right_castle(self, board, enemy, piece_dict, rek):
