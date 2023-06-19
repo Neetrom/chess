@@ -15,8 +15,20 @@ class Game:
         self.cells = self.logic_board.get_cells()
         self.graphic_interface = Graphic_Interface(self.logic_board.get_board())
         self.promo_menu = Promo_Menu()
+
         self.x = 0
         self.y = 0
+
+        self.cell_translation_dict = {
+            "a": 0,
+            "b": 1,
+            "c": 2,
+            "d": 3,
+            "e": 4,
+            "f": 5,
+            "g": 6,
+            "h": 7
+        }
         
         self.turn = "W"
         self.enemy = "B"
@@ -51,19 +63,27 @@ class Game:
                 pygame.quit()
                 sys.exit()
         if self.turn == "W":
-            if pygame.mouse.get_pressed()[0]:
-                self.graphic_interface.mouse_move(self.logic_board, self.enemy, self.screen, self.turn)
-            else:
-                if self.graphic_interface.figure_picked():
+            # if pygame.mouse.get_pressed()[0]:
+            #     self.graphic_interface.mouse_move(self.logic_board, self.enemy, self.screen, self.turn)
+            # else:
+            #     if self.graphic_interface.figure_picked():
 
-                    start_x, start_y = self.graphic_interface.get_x_y()
-                    dest_x, dest_y = get_cords()
-                    
-                    target = self.cells[dest_y][dest_x]
-                    piece_picked = self.cells[start_y][start_x]
-                    self.do_a_move(piece_picked, target)
+            #         start_x, start_y = self.graphic_interface.get_x_y()
+            #         dest_x, dest_y = get_cords()
+            
+            enemy_input = input("")
+            enemy_input = enemy_input.split()
+            start_x = self.cell_translation_dict[enemy_input[0][0]]
+            start_y = 8 - int(enemy_input[0][1])
 
-                    self.graphic_interface.let_go_of_a_piece()
+            dest_x = self.cell_translation_dict[enemy_input[1][0]]
+            dest_y = 8 - int(enemy_input[1][1])
+
+            target = self.cells[dest_y][dest_x]
+            piece_picked = self.cells[start_y][start_x]
+            self.do_a_move(piece_picked, target)
+
+            self.graphic_interface.let_go_of_a_piece()
         else:
             enemy_team = self.logic_board.get_color_pieces()[self.turn]
             shuffle(enemy_team)
