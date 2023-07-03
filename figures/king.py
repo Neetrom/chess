@@ -1,5 +1,5 @@
 from figures.single_tile_attack_piece import Single_Tile_Attack_Class
-from copy import copy, deepcopy
+from copy import deepcopy
 
 class King(Single_Tile_Attack_Class):
     def __init__(self, piece_type, pos):

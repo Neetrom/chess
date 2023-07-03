@@ -5,7 +5,6 @@ class Piece:
         self.pos = pos
 
         self.type = piece_type
-        self.points = 0
         self.valid_attack = False
 
         self.directions = []

@@ -1,4 +1,4 @@
-from copy import deepcopy, copy
+from copy import deepcopy
 from figures.piece import Piece
 
 class Pawn(Piece):
@@ -17,7 +17,6 @@ class Pawn(Piece):
     
     def all_available(self, board, enemy, piece_dict, rek):
         b_copy = deepcopy(board)
-
 
         self.go_one_forward(board, enemy, piece_dict, rek, b_copy)
         self.go_two_forward(board, enemy, piece_dict, rek, b_copy)
