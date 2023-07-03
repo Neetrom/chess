@@ -1,7 +1,7 @@
 import pygame, sys
 from settings import *
 from graphics.graphic_interface import Graphic_Interface
-from logic_board import Logic_Board
+from logic.logic_board import Logic_Board
 from graphics.promo_menu import Promo_Menu
 from random import shuffle
 

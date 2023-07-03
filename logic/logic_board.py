@@ -1,8 +1,9 @@
-from settings import  PIECES
+from settings import  PIECES, PROMO
 from copy import deepcopy
 from figures.import_pieces import IMPORT_PIECES
 from figures.piece import Piece
-from cell import Cell
+from logic.cell import Cell
+from random import choice
 
 
 class Logic_Board():
@@ -85,7 +86,10 @@ class Logic_Board():
         if target.y == 7 or target.y == 0:
             color = self.get_color_of_piece(target)
             self.kill_piece(target, color)
-            self.add_piece(f"{color}Q", target.x, target.y)
+            if self.get_color_of_piece(target) == "W":
+                self.add_piece(f"{color}Q", target.x, target.y)
+            else:
+                self.add_piece(f"{color}{choice(PROMO)}", target.x, target.y)
         if abs(target.y-starting_tile.y) == 2:
             self.mark_en_pass(target)
         
